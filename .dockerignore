@@ -1,0 +1,5 @@
+.vscode
+.git
+*.mv.db
+target
+ChatApplication/target
