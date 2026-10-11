@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  @page {
+    size: 16in 9in;
+    margin: 0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0f172a;
+    color: #f1f5f9;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .slide {
+    width: 16in;
+    height: 9in;
+    page-break-after: always;
+    padding: 0.7in 1in;
+    position: relative;
+    background: #0f172a;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow: hidden;
+  }
+  .slide-title-bg {
+    justify-content: center;
+    padding: 1.2in 1.2in;
+  }
+  .top-bar {
+    width: 1.8in;
+    height: 6px;
+    background: #c084fc;
+    margin-bottom: 24px;
+    border-radius: 4px;
+  }
+  .main-title {
+    font-size: 46px;
+    font-weight: 800;
+    color: #38bdf8;
+    line-height: 1.18;
+    margin-bottom: 16px;
+  }
+  .main-sub {
+    font-size: 26px;
+    color: #818cf8;
+    font-weight: 500;
+    margin-bottom: 32px;
+  }
+  .main-meta {
+    font-size: 18px;
+    color: #f59e0b;
+    font-style: italic;
+  }
+  .badge {
+    display: inline-block;
+    background: rgba(139, 92, 246, 0.25);
+    border: 1px solid #c084fc;
+    color: #c084fc;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 14px;
+    border-radius: 999px;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+    width: fit-content;
+  }
+  .header-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: #38bdf8;
+    margin-bottom: 4px;
+  }
+  .header-sub {
+    font-size: 18px;
+    color: #818cf8;
+    margin-bottom: 20px;
+  }
+  .cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex-grow: 1;
+  }
+  .card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 14px 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+  .card-h {
+    font-size: 18.5px;
+    font-weight: 700;
+    color: #f59e0b;
+    margin-bottom: 4px;
+  }
+  .card-p {
+    font-size: 15px;
+    line-height: 1.45;
+    color: #e2e8f0;
+  }
+  .page-num {
+    position: absolute;
+    bottom: 0.4in;
+    right: 1in;
+    font-size: 14px;
+    color: #64748b;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<div class="slide slide-title-bg">
+    <div class="top-bar"></div>
+    <div class="main-title">StealthChat: Next-Gen Real-Time Architecture<br>& Steganographic Carrier Security</div>
+    <div class="main-sub">Bridging TCP/IP Transport Layer Foundations with Novel Camouflaged Web Messaging</div>
+    <div class="main-meta">Computer Networking (CN) Case Study • Core Innovation & Comprehensive System Architecture</div>
+    <div class="page-num">Slide 1</div>
+</div>
+
+<div class="slide">
+    <div class="badge">THE CORE INNOVATION</div>
+    <div class="header-title">1. Project Motivation: The Fatal Flaw in Modern Chat Apps</div>
+    <div class="header-sub">Why standard End-to-End Encryption (E2EE) fails against network-level surveillance</div>
+    <div class="cards-container">
+        
+    <div class="card">
+        <div class="card-h">The Traditional E2EE Dilemma</div>
+        <div class="card-p">Apps like WhatsApp, Signal, and Telegram encrypt message text, but their packets loudly scream 'CIPHERTEXT' to network monitors, ISPs, firewalls, and Deep Packet Inspection (DPI) appliances.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Traffic Analysis & Censorship</div>
+        <div class="card-p">In corporate or restricted networks, detecting encrypted payloads leads to packet throttling, blocking, or flagged surveillance—even if the attacker cannot crack the mathematical cipher.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Our Novel Breakthrough (StealthChat)</div>
+        <div class="card-p">Instead of transmitting obvious ciphertext, our system invents a dual-layer Steganographic Carrier Channel: confidential data is embedded into procedural image pixels, masking the existence of communication.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Security Through Camouflage</div>
+        <div class="card-p">To firewalls, packet sniffers (Wireshark), and server admins, the traffic is identical to normal, benign PNG image sharing. Zero metadata or ciphertext alerts are triggered.</div>
+    </div>
+
+    </div>
+    <div class="page-num">Slide 2</div>
+</div>
+
+<div class="slide">
+    <div class="badge">NOVELTY ARCHITECTURE</div>
+    <div class="header-title">2. Our Novelty: Canvas LSB Image Encryption</div>
+    <div class="header-sub">How client-side Least Significant Bit (LSB) steganography conceals confidential data</div>
+    <div class="cards-container">
+        
+    <div class="card">
+        <div class="card-h">Procedural Carrier Canvas Generation</div>
+        <div class="card-p">The client browser dynamically synthesizes a unique HTML5 Canvas gradient artwork on the fly, avoiding hardcoded or repeated image hashes.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Binary Bit-Level Encoding</div>
+        <div class="card-p">Secret text is converted to UTF-8 binary bitstreams, terminated by a 16-bit null delimiter (0000000000000000) to eliminate metadata length headers.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Bitwise Pixel Mutation: Pixel & ~1 | Bit</div>
+        <div class="card-p">Bits replace only the Least Significant Bit of Red, Green, and Blue bytes. Maximum distortion per color channel is <= 1/255 (0.39%), below the human visual perception threshold.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Client-Side Zero-Knowledge Extraction</div>
+        <div class="card-p">The recipient decrypts purely in their local Canvas pixel buffer. The server, intermediaries, and network logs only ever see standard image/png binary data.</div>
+    </div>
+
+    </div>
+    <div class="page-num">Slide 3</div>
+</div>
+
+<div class="slide">
+    <div class="badge">COMPETITIVE ANALYSIS</div>
+    <div class="header-title">3. Competitive Analysis: StealthChat vs Industry Giants</div>
+    <div class="header-sub">Evaluating our novel architecture against leading commercial chat applications</div>
+    <div class="cards-container">
+        
+    <div class="card">
+        <div class="card-h">Payload Visibility to DPI</div>
+        <div class="card-p">WhatsApp/Signal: Obvious raw ciphertext streams. StealthChat: Fully disguised as harmless PNG image frames—undetectable by Deep Packet Inspection.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Deniable Communication</div>
+        <div class="card-p">WhatsApp/Signal: None. Metadata logs prove an encrypted exchange occurred. StealthChat: Supported. The sender can claim they were sharing random digital artwork.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Zero-Plugin Browser Execution</div>
+        <div class="card-p">WhatsApp/Signal require heavy compiled native cryptography libraries (libsignal). StealthChat operates 100% in pure HTML5 Canvas & WebSockets without browser plugins.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Transport & Delivery Guarantees</div>
+        <div class="card-p">Combines the best of WhatsApp (SENT ✓, DELIVERED ✓✓, READ ✓✓ receipts, Heartbeat presence TTL) with our custom steganographic carrier security.</div>
+    </div>
+
+    </div>
+    <div class="page-num">Slide 4</div>
+</div>
+
+<div class="slide">
+    <div class="badge">NETWORK LAYER DEFENSE</div>
+    <div class="header-title">4. Network Camouflage & DPI Resistance</div>
+    <div class="header-sub">Demonstrating how Steganography defeats network-level packet sniffers</div>
+    <div class="cards-container">
+        
+    <div class="card">
+        <div class="card-h">Deep Packet Inspection (DPI) Vulnerability</div>
+        <div class="card-p">Modern enterprise firewalls and network middleboxes inspect transport payloads. High-entropy ciphertext strings are immediately flagged as suspicious or blocked.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">MIME-Type & Framing Disguise</div>
+        <div class="card-p">StealthChat formats the steganographic carrier into standard Base64 image/png data, adhering to normal HTTP/WebSocket MIME classifications.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Admin Audit Dashboard Interception Proof</div>
+        <div class="card-p">Our built-in Admin Security Dashboard captures intercepted database logs: it confirms that snooping admins and proxy observers see only [BASE64 CARRIER IMAGE].</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Dual-Layer Defense in Depth</div>
+        <div class="card-p">Layer 1: Protocol Security (WebSockets + JWT Channel ACL) + Layer 2: Novel Payload Camouflage (Visual Steganography).</div>
+    </div>
+
+    </div>
+    <div class="page-num">Slide 5</div>
+</div>
+
+<div class="slide">
+    <div class="badge">TRANSPORT LAYER</div>
+    <div class="header-title">5. Networking Fundamentals: TCP vs UDP Protocol Choice</div>
+    <div class="header-sub">Why TCP is mandatory for reliable, ordered multi-client chat applications</div>
+    <div class="cards-container">
+        
+    <div class="card">
+        <div class="card-h">TCP (Transmission Control Protocol)</div>
+        <div class="card-p">Connection-oriented with strict 3-way handshake (SYN -> SYN-ACK -> ACK). Guarantees packets arrive in exact sequential order without bit corruption or duplication.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">UDP (User Datagram Protocol)</div>
+        <div class="card-p">Connectionless fire-and-forget protocol. High speed but zero delivery guarantees—packets can arrive out of order, corrupted, or not at all.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Chat Semantic Integrity</div>
+        <div class="card-p">A chat message requires 100% reliability. Dropping fragments or reordering packets corrupts meaning. Hence, TCP is the required transport layer foundation.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Transport Layer Mapping</div>
+        <div class="card-p">Both our Phase 1 Raw Socket Server and Phase 2 WebSocket Architecture run on top of TCP.</div>
+    </div>
+
+    </div>
+    <div class="page-num">Slide 6</div>
+</div>
+
+<div class="slide">
+    <div class="badge">TRANSPORT LAYER</div>
+    <div class="header-title">6. Sockets, Ports & Concurrency Architecture</div>
+    <div class="header-sub">How the transport layer routes data and manages concurrent client connections</div>
+    <div class="cards-container">
+        
+    <div class="card">
+        <div class="card-h">Socket Endpoints</div>
+        <div class="card-p">A network socket is an endpoint abstraction combining an IP address and port number (e.g., 127.0.0.1:8189), allowing the OS TCP stack to bind packets to specific applications.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">The Concurrency Bottleneck</div>
+        <div class="card-p">A single-threaded server blocks inside accept() or read() loops. If one client has high latency, all other connected clients are blocked from communicating.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Multi-Threaded Server Delegation</div>
+        <div class="card-p">The main server thread exclusively accepts incoming handshakes, offloading each socket to a dedicated ClientHandler background worker thread.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Thread-Safe Mutex Synchronization</div>
+        <div class="card-p">Broadcast client sets are protected with synchronized mutex locks, preventing ConcurrentModificationException during simultaneous client connects/disconnects.</div>
+    </div>
+
+    </div>
+    <div class="page-num">Slide 7</div>
+</div>
+
+<div class="slide">
+    <div class="badge">PHASE 1 PROTOTYPE</div>
+    <div class="header-title">7. Foundation Prototype: Raw Java TCP Socket Chat</div>
+    <div class="header-sub">Architecture and design of our practical Java multi-threaded socket implementation</div>
+    <div class="cards-container">
+        
+    <div class="card">
+        <div class="card-h">ChatServer.java (Core Server)</div>
+        <div class="card-p">Initializes ServerSocket(8189), manages persistent client streams, and broadcasts messages across synchronized client output writers.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">ChatClient.java (Terminal Client)</div>
+        <div class="card-p">Demonstrates dual-thread terminal I/O: Main thread reads stdin; background listener thread monitors socket InputStream for broadcasts.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">ChatClientGUI.java (Swing Interface)</div>
+        <div class="card-p">Abstracts socket networking behind a GUI. Event Dispatch Thread (EDT) updates visuals while background worker threads handle blocking network calls.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Network Boundary</div>
+        <div class="card-p">Operates directly on raw TCP streams; clients communicate via raw plaintext byte streams delimited by newline characters.</div>
+    </div>
+
+    </div>
+    <div class="page-num">Slide 8</div>
+</div>
+
+<div class="slide">
+    <div class="badge">APPLICATION LAYER</div>
+    <div class="header-title">8. Architectural Shift: Why WebSockets? (RFC 6455)</div>
+    <div class="header-sub">Overcoming the fundamental limitations of HTTP and raw TCP in web browsers</div>
+    <div class="cards-container">
+        
+    <div class="card">
+        <div class="card-h">Browser Sandbox Barrier</div>
+        <div class="card-p">Web browsers strictly prohibit raw TCP socket access for security reasons; all traffic must traverse standard web ports (80/443).</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">HTTP/1.1 Polling Overhead</div>
+        <div class="card-p">Periodic polling generates 500B-2KB of redundant HTTP headers per request, flooding network pipes and creating server connection spikes.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">HTTP Long-Polling & SSE</div>
+        <div class="card-p">Unidirectional and prone to connection timeouts; requires closing and reconnecting HTTP request cycles continuously.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">The WebSocket Solution (RFC 6455)</div>
+        <div class="card-p">Initiates via standard HTTP 101 Upgrade handshake, then converts into a persistent full-duplex TCP stream with tiny 2-10 byte framing overhead.</div>
+    </div>
+
+    </div>
+    <div class="page-num">Slide 9</div>
+</div>
+
+<div class="slide">
+    <div class="badge">DISTRIBUTED SYSTEMS</div>
+    <div class="header-title">9. Publish-Subscribe (Pub/Sub) Message Fan-Out</div>
+    <div class="header-sub">Decoupling message routing across distributed clusters</div>
+    <div class="cards-container">
+        
+    <div class="card">
+        <div class="card-h">Multi-Server Connection Problem</div>
+        <div class="card-p">In scalable deployments, Sender (on Gateway Node 1) and Recipient (on Gateway Node 2) are not connected to the same server memory space.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Redis / Kafka Pub/Sub Broker</div>
+        <div class="card-p">WebSocket gateways connect to a central Pub/Sub broker cluster. When a message is sent, Gateway 1 publishes to the destination channel.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">1-on-1 vs Channel Routing</div>
+        <div class="card-p">1-on-1 messages publish to user:{recipient_id}. Group messages fan out to /topic/{roomId} where all participating nodes relay to connected users.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Horizontal Scaling</div>
+        <div class="card-p">WebSocket gateways become stateless relays; new nodes can be added or destroyed dynamically without disrupting routing logic.</div>
+    </div>
+
+    </div>
+    <div class="page-num">Slide 10</div>
+</div>
+
+<div class="slide">
+    <div class="badge">SYSTEM DESIGN</div>
+    <div class="header-title">10. Stateless API Microservices Architecture</div>
+    <div class="header-sub">Separating stateful real-time connections from transactional business logic</div>
+    <div class="cards-container">
+        
+    <div class="card">
+        <div class="card-h">Stateful Layer (WebSocket Gateway)</div>
+        <div class="card-p">Handles persistent TCP sockets, STOMP heartbeat ping/pong frames, and ephemeral delivery ACKs at /ws-chat.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Stateless HTTP/REST Services</div>
+        <div class="card-p">All non-real-time operations remain strictly stateless: Auth Service (/api/auth), Group Management (/api/groups), User Profiles, and Interception Audits (/api/admin).</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Independent Elastic Scaling</div>
+        <div class="card-p">Stateless REST APIs autoscale horizontally behind standard L7 load balancers (Nginx/HAProxy) based on CPU/traffic without dropping active chat sessions.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Zero-Downtime Deployments</div>
+        <div class="card-p">Business logic and profile schemas can be updated without cycling long-lived WebSocket connections.</div>
+    </div>
+
+    </div>
+    <div class="page-num">Slide 11</div>
+</div>
+
+<div class="slide">
+    <div class="badge">ESSENTIAL FEATURES</div>
+    <div class="header-title">11. Message Delivery State Machine (ACK Tracking)</div>
+    <div class="header-sub">Building user trust through sent, delivered, and read receipt feedback</div>
+    <div class="cards-container">
+        
+    <div class="card">
+        <div class="card-h">Pending (🕒)</div>
+        <div class="card-p">Message is created on client and placed in local IndexedDB outbox while offline or in-flight.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Sent (✓ Single Gray Tick)</div>
+        <div class="card-p">Server receives frame, validates idempotency, persists to database, and emits an immediate ACK to the sender.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Delivered (✓✓ Double Gray Tick)</div>
+        <div class="card-p">Recipient's WebSocket client receives the message frame and automatically emits an ACK frame (/app/chat.ackDelivery/{roomId}).</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Read (✓✓ Double Blue Tick)</div>
+        <div class="card-p">Recipient opens the active conversation viewport; client triggers /app/chat.ackRead/{roomId}, updating chat bubbles in real-time.</div>
+    </div>
+
+    </div>
+    <div class="page-num">Slide 12</div>
+</div>
+
+<div class="slide">
+    <div class="badge">ESSENTIAL FEATURES</div>
+    <div class="header-title">12. Presence Status System (Heartbeat + TTL Cache)</div>
+    <div class="header-sub">Accurate online, away, and offline tracking without socket polling overhead</div>
+    <div class="cards-container">
+        
+    <div class="card">
+        <div class="card-h">The Ghost Connection Problem</div>
+        <div class="card-p">Abrupt client crashes, tunnel loss, or dead batteries often leave TCP connections half-open without a TCP FIN packet.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Heartbeat Keep-Alive</div>
+        <div class="card-p">Active clients emit a lightweight heartbeat ping (/app/chat.heartbeat) every 15 seconds containing presence status (ONLINE or AWAY).</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Cache Storage with 30s TTL</div>
+        <div class="card-p">PresenceService maintains an in-memory/Redis TTL cache. If no heartbeat arrives within 30 seconds, the user's presence key automatically expires.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Scheduled Eviction Sweep</div>
+        <div class="card-p">An asynchronous task sweeps expired records every 5s, immediately notifying channel members of status transitions (/topic/presence).</div>
+    </div>
+
+    </div>
+    <div class="page-num">Slide 13</div>
+</div>
+
+<div class="slide">
+    <div class="badge">ESSENTIAL FEATURES</div>
+    <div class="header-title">13. Multi-Device & Cross-Tab Synchronization</div>
+    <div class="header-sub">Zero-redundancy local synchronization across browser sessions</div>
+    <div class="cards-container">
+        
+    <div class="card">
+        <div class="card-h">BroadcastChannel API</div>
+        <div class="card-p">Browser tabs of the same origin communicate directly using new BroadcastChannel('stealthchat_sync_channel').</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Cross-Tab Read Sync</div>
+        <div class="card-p">When Tab 1 marks a conversation as READ, it broadcasts an ACK_UPDATE event; Tab 2 instantly updates its tick indicators without making extra network calls.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Outgoing Message Mirroring</div>
+        <div class="card-p">Messages sent in one window immediately appear in other active tabs without duplicate REST polling.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Cross-Device Sequence Clock</div>
+        <div class="card-p">Monotonically increasing sequence IDs allow mobile and desktop companion devices to fetch missing message deltas upon reconnect.</div>
+    </div>
+
+    </div>
+    <div class="page-num">Slide 14</div>
+</div>
+
+<div class="slide">
+    <div class="badge">OFFLINE ARCHITECTURE</div>
+    <div class="header-title">14. Offline-First Architecture: IndexedDB & Service Worker</div>
+    <div class="header-sub">Ensuring continuous chat usability through degraded network conditions</div>
+    <div class="cards-container">
+        
+    <div class="card">
+        <div class="card-h">Local IndexedDB Datastore (StealthChatDB)</div>
+        <div class="card-p">Maintains local object stores: 'messages' (indexed by roomId/timestamp for instant local rendering) and 'outbox' (for pending queued frames).</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Service Worker Shell Caching (sw.js)</div>
+        <div class="card-p">Pre-caches HTML, scripts, and stylesheets using a Network-First fallback strategy, allowing full app access while offline.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Background Sync API (sync-queued-messages)</div>
+        <div class="card-p">Registers an asynchronous sync tag. The service worker notifies the page when connectivity is restored, triggering an automated outbox drain.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Optimistic UI Rendering</div>
+        <div class="card-p">Users compose and view queued messages instantly with a pending clock badge, eliminating UI latency.</div>
+    </div>
+
+    </div>
+    <div class="page-num">Slide 15</div>
+</div>
+
+<div class="slide">
+    <div class="badge">SECURITY & ACCESS CONTROL</div>
+    <div class="header-title">15. Security: Authentication & Channel-Level ACL</div>
+    <div class="header-sub">Short-lived JWTs and packet-level STOMP channel access control</div>
+    <div class="cards-container">
+        
+    <div class="card">
+        <div class="card-h">Stateless JWT Issuance</div>
+        <div class="card-p">Upon successful REST login (/api/auth/login), users receive an RFC 7519 HMAC-SHA256 signed token embedding identity, role, and expiration.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">STOMP CONNECT Interception</div>
+        <div class="card-p">WebSocketSecurityChannelInterceptor extracts the JWT from native Authorization: Bearer headers and establishes an authenticated StompPrincipal.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">STOMP SUBSCRIBE Channel Guard</div>
+        <div class="card-p">When a client subscribes to /topic/{roomId}, the interceptor verifies group membership in GroupMembershipRepository. Unauthorized subscriptions are dropped!</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Constant-Time Verification</div>
+        <div class="card-p">Signature verification uses constant-time byte comparisons to eliminate side-channel timing attack vulnerabilities.</div>
+    </div>
+
+    </div>
+    <div class="page-num">Slide 16</div>
+</div>
+
+<div class="slide">
+    <div class="badge">DATA INTEGRITY</div>
+    <div class="header-title">16. Client-Side Idempotency & Deduplication</div>
+    <div class="header-sub">Eliminating duplicate messages caused by unstable network retries</div>
+    <div class="cards-container">
+        
+    <div class="card">
+        <div class="card-h">The Retry Storm Dilemma</div>
+        <div class="card-p">On mobile connections, a message is often delivered successfully, but the server's return ACK is dropped. The client retries, duplicating the message.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Client Message ID Assignment</div>
+        <div class="card-p">Clients generate a cryptographically unique UUIDv7 / timestamp string (clientMsgId) before transmitting.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Sliding-Window Idempotency Cache</div>
+        <div class="card-p">IdempotencyService maintains an in-memory cache with a 5-minute TTL window alongside a persistent database index check.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Zero Duplication Guarantee</div>
+        <div class="card-p">If a duplicate clientMsgId is detected, the server suppresses duplicate database inserts and broadcasts, returning the existing status safely.</div>
+    </div>
+
+    </div>
+    <div class="page-num">Slide 17</div>
+</div>
+
+<div class="slide">
+    <div class="badge">PRACTICAL IMPLEMENTATION</div>
+    <div class="header-title">17. Live Demonstration: StealthChat Full-Stack App</div>
+    <div class="header-sub">Enterprise Spring Boot 3 & modern browser client showcase</div>
+    <div class="cards-container">
+        
+    <div class="card">
+        <div class="card-h">Technology Stack</div>
+        <div class="card-p">Java 17, Spring Boot 3.2.3, Spring WebSocket MessageBroker (SockJS/STOMP), Spring Data JPA, H2 Database, Vanilla HTML5/CSS3.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">WhatsApp-Inspired User Experience</div>
+        <div class="card-p">Dark-mode aesthetic, dynamic tick indicators, group invite code system, and responsive layout across desktop and mobile.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Steganographic Carrier Demonstration</div>
+        <div class="card-p">Toggle Stealth Mode to view how secret text turns into an aesthetic noise canvas and is decrypted cleanly on the recipient end.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Admin Security Audit Panel</div>
+        <div class="card-p">Real-time audit log demonstrates that server databases and interceptors only capture carrier images without plaintext leakage.</div>
+    </div>
+
+    </div>
+    <div class="page-num">Slide 18</div>
+</div>
+
+<div class="slide">
+    <div class="badge">ENGINEERING LESSONS</div>
+    <div class="header-title">18. Real-World Engineering Challenges Encountered</div>
+    <div class="header-sub">Key obstacles resolved during development and architectural migration</div>
+    <div class="cards-container">
+        
+    <div class="card">
+        <div class="card-h">Port Conflicts (HTTP 400 Mismatch)</div>
+        <div class="card-p">Port 8080 was occupied by a background HTTP server that rejected raw TCP text with HTTP 400; resolved by dedicating port 8189 for raw sockets and 8080 for web.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Thread Safety & Race Conditions</div>
+        <div class="card-p">Concurrent connections caused ConcurrentModificationException on client lists; resolved using synchronized mutex blocks.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Spring Boot Circular Dependency Cycle</div>
+        <div class="card-p">WebSocketConfig -> SecurityInterceptor -> PresenceService -> SimpMessagingTemplate formed an unresolvable cycle; resolved via @Lazy decoupling.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Dual-Tab Message Duplication</div>
+        <div class="card-p">BroadcastChannel cross-tab sync initially triggered duplicate DOM bubbles; resolved via unique clientMsgId DOM deduplication.</div>
+    </div>
+
+    </div>
+    <div class="page-num">Slide 19</div>
+</div>
+
+<div class="slide">
+    <div class="badge">CONCLUSION & SUMMARY</div>
+    <div class="header-title">19. Conclusion: Academic & Technical Contributions</div>
+    <div class="header-sub">Summary of networking contributions and novel innovations</div>
+    <div class="cards-container">
+        
+    <div class="card">
+        <div class="card-h">Transport Layer Mastery</div>
+        <div class="card-p">Demonstrated hands-on socket programming, port binding, and thread synchronization in Java.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Enterprise Distributed Systems</div>
+        <div class="card-p">Successfully implemented WebSockets, Pub/Sub fanout, Stateless REST microservices, and JWT channel authorization.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Reliability Across Hostile Networks</div>
+        <div class="card-p">Solved mobile instability using client idempotency, delivery receipt state machines, and heartbeat TTL presence.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-h">Our Core Novelty (Steganographic Carrier)</div>
+        <div class="card-p">Pioneered a deniable, DPI-resistant messaging channel by concealing confidential data inside procedural carrier images—advancing state-of-the-art chat privacy.</div>
+    </div>
+
+    </div>
+    <div class="page-num">Slide 20</div>
+</div>
+
+</body>
+</html>

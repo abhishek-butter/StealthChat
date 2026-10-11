@@ -1,0 +1,14 @@
+FROM node:18-alpine
+WORKDIR /app
+
+# Install the WebSocket library
+RUN npm install ws
+
+# Copy the Node.js bridge and the HTML client file
+COPY WebSocketBridge.js WebClient.html ./
+
+# Expose the HTTP/WebSocket port
+EXPOSE 8080
+
+# Start the proxy bridge
+CMD ["node", "WebSocketBridge.js"]

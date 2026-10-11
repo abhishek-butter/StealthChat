@@ -1,0 +1,14 @@
+FROM openjdk:17-slim
+WORKDIR /app
+
+# Copy all Java source files
+COPY *.java ./
+
+# Compile the Java Server
+RUN javac ChatServer.java
+
+# Expose the TCP port
+EXPOSE 8189
+
+# Start the ChatServer
+CMD ["java", "ChatServer"]

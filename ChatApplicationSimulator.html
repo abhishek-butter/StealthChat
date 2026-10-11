@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Web Chat Protocol Simulator</title>
+<style>
+:root{--navy:#1e1b4b;--blue:#8b5cf6;--bg:#0f172a;--card:#1e293b;--ink:#f8fafc;--muted:#cbd5e1;--line:#334155}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.top{background:linear-gradient(120deg,#0f172a,#312e81);color:white;padding:25px max(18px,calc((100% - 1100px)/2))}
+.eyebrow{font-size:12px;letter-spacing:.12em;font-weight:800;color:#c4b5fd}
+.top h1{font-size:clamp(25px,4vw,38px);line-height:1.12;margin:8px 0}
+.top p{margin:8px 0 0;color:#ddd6fe;max-width:760px}
+.wrap{max-width:1100px;margin:22px auto;padding:0 16px 35px}
+.notice{border:1px solid #14b8a6;background:#042f2e;color:#5eead4;border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:13px}
+.layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:16px;align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 4px 18px rgba(0,0,0,0.5);min-width:0}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.tag{display:inline-flex;border:1px solid #475569;background:#334155;border-radius:999px;padding:4px 9px;font-size:11px;font-weight:800;color:#f8fafc}
+.progress{height:6px;border-radius:99px;background:#334155;overflow:hidden;margin:13px 0 18px}
+.progress>div{height:100%;background:linear-gradient(90deg,var(--blue),#14b8a6);transition:width .25s}
+.stage-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:center}
+.visual{background:#0f172a;border:1px solid #334155;border-radius:13px;min-height:260px;display:flex;align-items:center;justify-content:center;padding:18px;overflow:hidden;position:relative}
+.visual-inner{width:100%;text-align:center}
+
+/* Devices */
+.device-box { width: 100px; height: 120px; color: white; border-radius: 12px; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; position: absolute; padding-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.4); z-index: 2;}
+.browser { background: #8b5cf6; border: 3px solid #6d28d9; left: 20px; top: 60px; }
+.proxy { background: #0f766e; color: #fff; border: 3px solid #115e59; left: 50%; transform: translateX(-50%); top: 60px; }
+.java-server { background: #312e81; border: 3px solid #4338ca; right: 20px; top: 60px; }
+
+/* Lines */
+.line { position: absolute; height: 4px; background: #64748b; top: 118px; z-index: 1; transition: background 0.3s; }
+.line-1 { left: 120px; right: calc(50% + 50px); }
+.line-2 { left: calc(50% + 50px); right: 120px; }
+
+/* Packets */
+.packet { width: 14px; height: 14px; border-radius: 50%; position: absolute; display: none; z-index: 3; top: 113px;}
+
+@keyframes moveRight1 { 0% { left: 120px; opacity: 1;} 90% { opacity: 1;} 100% { left: calc(50% - 50px - 14px); opacity: 0; } }
+@keyframes moveLeft1 { 0% { left: calc(50% - 50px - 14px); opacity: 1;} 90% {opacity: 1;} 100% { left: 120px; opacity: 0; } }
+@keyframes moveRight2 { 0% { left: calc(50% + 50px); opacity: 1;} 90% {opacity: 1;} 100% { left: calc(100% - 120px - 14px); opacity: 0; } }
+@keyframes moveLeft2 { 0% { left: calc(100% - 120px - 14px); opacity: 1;} 90% {opacity: 1;} 100% { left: calc(50% + 50px); opacity: 0; } }
+
+.explain{border-left:4px solid var(--blue);background:#1e293b;padding:12px 13px;border-radius:0 10px 10px 0;margin-top:13px;color:#cbd5e1}
+.buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.btn{border:1px solid #475569;border-radius:9px;background:#1e293b;padding:10px 14px;font-weight:750;color:#f8fafc;min-height:42px; cursor:pointer;transition:all 0.2s;}
+.btn:hover{background:#334155;}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:white}
+.btn.primary:hover{background:#7c3aed;}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.section-title{font-size:17px;font-weight:850;margin:0 0 12px;color:#f8fafc}
+.stack{display:grid;gap:14px}
+.kv{display:grid;grid-template-columns:100px minmax(0,1fr);gap:8px;border-bottom:1px solid #334155;padding:8px 0;font-size:13px}
+.kv:last-child{border-bottom:0}
+.code{white-space:pre-wrap;overflow-wrap:anywhere;background:#0f172a;color:#e2e8f0;border:1px solid #334155;border-radius:10px;padding:13px;font:12px/1.6 ui-monospace,monospace}
+.status{border-radius:10px;padding:11px 12px;background:#064e3b;color:#34d399;font-weight:800}
+.status.warn{background:#78350f;color:#fbbf24}
+.footer{text-align:center;color:#64748b;font-size:12px;padding:18px 0 0}
+button:focus-visible,input:focus-visible{outline:3px solid #a78bfa;outline-offset:2px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field input{width:100%;padding:11px 12px;border:1px solid #475569;border-radius:9px;background:#0f172a;color:#f8fafc}
+
+/* Legend */
+.legend { display: flex; justify-content: center; gap: 15px; margin-bottom: 10px; font-size: 11px; color: #cbd5e1;}
+.leg-item { display: flex; align-items: center; gap: 5px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot-http { background: #f59e0b; }
+.dot-ws { background: #ec4899; }
+.dot-tcp { background: #3b82f6; }
+</style>
+</head>
+<body>
+<header class="top">
+    <div class="eyebrow">CASE STUDY: WEB CHAT ARCHITECTURE</div>
+    <h1>Web Chat Protocol Simulator</h1>
+    <p>Explore the end-to-end journey of messages across HTTP, WebSockets, and Raw TCP in a modern Node.js + Java architecture.</p>
+</header>
+<main class="wrap">
+<div class="notice"><b>Educational Case Study.</b> This simulator breaks down how our WhatsApp-style web application bridges modern browser WebSockets to legacy Java TCP Sockets.</div>
+<div class="layout">
+<section class="card">
+    <div class="row">
+        <div>
+            <div class="small muted">INTERACTIVE WALKTHROUGH</div>
+            <h2 id="stepCount" style="margin:3px 0 0;font-size:20px;color:#f8fafc;">Stage 1 of 8</h2>
+        </div>
+        <span class="tag" id="stepTag">HTTP GET</span>
+    </div>
+    
+    <div class="progress"><div id="progressBar" style="width:12.5%"></div></div>
+    
+    <div class="stage-grid">
+        <div>
+            <div class="legend">
+                <div class="leg-item"><div class="dot dot-http"></div>HTTP</div>
+                <div class="leg-item"><div class="dot dot-ws"></div>WebSocket</div>
+                <div class="leg-item"><div class="dot dot-tcp"></div>Raw TCP</div>
+            </div>
+            <div class="visual" id="visual">
+                <div id="line1" class="line line-1"></div>
+                <div id="line2" class="line line-2"></div>
+                
+                <div class="device-box browser" id="v-browser">
+                    <div style="font-weight:bold; font-size:14px; margin-bottom:4px;">Browser</div>
+                    <div style="font-size:10px; color:#ddd6fe;">Web UI</div>
+                    <div id="browser-msg" style="font-size:10px; margin-top:20px; color:#fff; text-align:center; padding: 0 5px;"></div>
+                </div>
+
+                <div class="device-box proxy" id="v-proxy">
+                    <div style="font-weight:bold; font-size:14px; margin-bottom:4px;">Node.js</div>
+                    <div style="font-size:10px; color:#ccfbf1;">Proxy / HTTP</div>
+                    <div id="proxy-status" style="font-size:10px; margin-top:20px; font-weight:bold; text-align:center;"></div>
+                </div>
+
+                <div class="device-box java-server" id="v-server">
+                    <div style="font-weight:bold; font-size:14px; margin-bottom:4px;">Java Server</div>
+                    <div style="font-size:10px; color:#a78bfa;">TCP :8189</div>
+                    <div id="server-status" style="font-size:10px; margin-top:20px; color:#fff; text-align:center; padding: 0 5px;"></div>
+                </div>
+                
+                <div class="packet" id="v-packet1"></div>
+                <div class="packet" id="v-packet2"></div>
+            </div>
+        </div>
+        <div>
+            <h2 id="stageTitle" style="font-size:21px;line-height:1.25;margin:0 0 9px;color:#f8fafc">Requesting the Web UI</h2>
+            <p id="stageDesc" style="margin:0;color:#cbd5e1">The browser sends an HTTP GET request to the Node.js server.</p>
+            <div class="explain" id="stageDetail">Browsers must first load the HTML/CSS/JS files to render the WhatsApp-like interface.</div>
+        </div>
+    </div>
+    
+    <div class="buttons">
+        <button class="btn" id="prevBtn" disabled>← Previous</button>
+        <button class="btn primary" id="nextBtn">Next stage →</button>
+        <button class="btn" id="playBtn">▶ Play walkthrough</button>
+        <button class="btn" id="resetBtn">Reset</button>
+    </div>
+    <p class="small muted" id="live" aria-live="polite" style="margin:12px 0 0">Ready. Select Next stage to begin.</p>
+</section>
+
+<aside class="stack">
+    <section class="card">
+        <h2 class="section-title">Research & Protocol Concepts</h2>
+        <p class="small muted">Key concepts used in our Web Chat Application architecture.</p>
+        <div class="kv"><b>WebSockets (ws://)</b><span style="color:#cbd5e1;">Unlike HTTP, WebSockets provide a persistent, full-duplex connection between the browser and server, essential for real-time chat.</span></div>
+        <div class="kv"><b>Protocol Bridging</b><span style="color:#cbd5e1;">Browsers cannot connect directly to raw TCP sockets. The Node.js proxy bridges this gap by translating WebSocket frames into raw TCP byte streams for Java.</span></div>
+        <div class="kv"><b>Broadcasting</b><span style="color:#cbd5e1;">The Java Server maintains a list of all active TCP sockets. When one client sends a message, it is written to every socket's OutputStream.</span></div>
+    </section>
+
+    <section class="card">
+        <h2 class="section-title">Live Message Payload</h2>
+        <p class="small muted">Change the mock message to see it travel through the layers.</p>
+        <label class="field" for="chatMsg">
+            <span class="small muted">Message text</span>
+            <input type="text" id="chatMsg" value="Hello everyone!">
+        </label>
+        <div class="status" style="margin-top:12px" id="msgSummary">Payload ready: "Hello everyone!"</div>
+    </section>
+
+    <section class="card">
+        <h2 class="section-title">Backend Code Snippet</h2>
+        <div class="code" id="snippetCode">// HTTP Request
+const server = http.createServer((req, res) => {
+    fs.readFile('WebClient.html', (err, data) => {
+        res.end(data);
+    });
+});</div>
+    </section>
+</aside>
+</div>
+<div class="footer">Built for a Computer Networks case-study presentation · Web Chat Protocol Bridge</div>
+</main>
+
+<script>
+(()=>{'use strict';const $=id=>document.getElementById(id);
+
+const stages=[
+{tag:'HTTP GET',title:'1. Requesting the Web UI',desc:'The browser sends an HTTP GET request to the Node.js server on port 8080.',detail:'Browsers must first load the HTML/CSS/JS files to render the WhatsApp-like interface.', code:`// HTTP Request\nconst server = http.createServer((req, res) => {\n    fs.readFile('WebClient.html', (err, data) => {\n        res.end(data);\n    });\n});`},
+{tag:'HTTP 200',title:'2. Serving HTML/JS',desc:'Node.js responds with WebClient.html and JavaScript files.',detail:'The browser downloads the files and renders the WhatsApp-like UI for the user.', code:`// Responding with 200 OK\nres.writeHead(200, { 'Content-Type': 'text/html' });\nres.end(data);`},
+{tag:'WS HANDSHAKE',title:'3. WebSocket Upgrade',desc:'The browser JavaScript requests a protocol upgrade from HTTP to WebSocket (ws://).',detail:'This establishes a persistent, real-time, bidirectional connection between Browser and Node.js.', code:`// In WebClient.html\nconst ws = new WebSocket('ws://localhost:8080');\n\n// In WebSocketBridge.js\nconst wss = new WebSocket.Server({ server });`},
+{tag:'TCP BRIDGE',title:'4. Protocol Bridging (TCP)',desc:'The Node.js proxy opens a raw TCP Socket connection to the Java Chat Server on port 8189.',detail:'Node.js acts as a middleman. It is a WebSocket Server on one side, and a TCP Client on the other.', code:`// In WebSocketBridge.js\nconst tcpClient = new net.Socket();\ntcpClient.connect(8189, '127.0.0.1', () => {\n    console.log('Connected to Java!');\n});`},
+{tag:'SEND (WS)',title:'5. Sending Message (WS)',desc:'User types a message. The browser sends it as a WebSocket frame to the Node.js Proxy.',detail:'WebSocket frames are lightweight and have very little overhead compared to HTTP requests.', code:`// In WebClient.html\nws.send(messageInput.value);`},
+{tag:'TRANSLATE (TCP)',title:'6. Proxy Translates to TCP',desc:'Node.js extracts the text from the WS frame, adds a newline, and writes it to the raw TCP stream.',detail:'This is where the actual "Bridging" occurs. Java only understands raw bytes ending in a newline.', code:`// In WebSocketBridge.js\nws.on('message', (message) => {\n    const text = message.toString();\n    tcpClient.write(text + '\\n');\n});`},
+{tag:'BROADCAST',title:'7. Java Broadcasts',desc:'The Java server receives the TCP packet, iterates over all ClientHandlers, and broadcasts the message.',detail:'The message is sent down all active TCP streams, including the stream connected to Node.js.', code:`// In ChatServer.java\nfor (PrintWriter writer : clientWriters) {\n    writer.println(formattedMessage);\n}`},
+{tag:'RECEIVE (WS)',title:'8. Browser Renders Chat',desc:'Proxy receives TCP data, translates it to a WS frame, and sends it to the browser to display.',detail:'Simulation complete. This multi-layered flow happens in milliseconds for every message!', code:`// Proxy -> Browser\ntcpClient.on('data', (data) => {\n    ws.send(data.toString());\n});\n\n// Browser UI Update\nappendMessage(data, 'incoming');`}
+];
+
+let index=0,timer=null;
+
+function updateVisual() {
+    const l1 = $('line1'), l2 = $('line2');
+    const p1 = $('v-packet1'), p2 = $('v-packet2');
+    const bMsg = $('browser-msg'), pStat = $('proxy-status'), sStat = $('server-status');
+    
+    // Reset animations
+    p1.style.animation = 'none'; p2.style.animation = 'none';
+    p1.style.display = 'none'; p2.style.display = 'none';
+    
+    // Force reflow
+    void p1.offsetWidth; void p2.offsetWidth;
+
+    bMsg.textContent = ''; pStat.textContent = ''; sStat.textContent = '';
+    
+    l1.style.background = '#334155';
+    l2.style.background = '#334155';
+
+    if (index === 0) {
+        bMsg.textContent = "GET / UI";
+        p1.style.background = '#f59e0b';
+        p1.style.boxShadow = '0 0 8px #f59e0b';
+        p1.style.display = 'block';
+        p1.style.animation = 'moveRight1 1s forwards ease-in-out';
+    } else if (index === 1) {
+        pStat.textContent = "200 OK";
+        bMsg.textContent = "Loading UI...";
+        p1.style.background = '#f59e0b';
+        p1.style.boxShadow = '0 0 8px #f59e0b';
+        p1.style.display = 'block';
+        p1.style.animation = 'moveLeft1 1s forwards ease-in-out';
+    } else if (index === 2) {
+        l1.style.background = '#ec4899';
+        bMsg.textContent = "ws:// upgrade";
+        p1.style.background = '#ec4899';
+        p1.style.boxShadow = '0 0 8px #ec4899';
+        p1.style.display = 'block';
+        p1.style.animation = 'moveRight1 1s forwards ease-in-out';
+    } else if (index === 3) {
+        l1.style.background = '#ec4899';
+        l2.style.background = '#3b82f6';
+        pStat.textContent = "net.Socket()";
+        p2.style.background = '#3b82f6';
+        p2.style.boxShadow = '0 0 8px #3b82f6';
+        p2.style.display = 'block';
+        p2.style.animation = 'moveRight2 1s forwards ease-in-out';
+    } else if (index === 4) {
+        l1.style.background = '#ec4899';
+        l2.style.background = '#3b82f6';
+        let text = $('chatMsg').value;
+        bMsg.textContent = "Send: " + (text.length>7?text.substring(0,7)+"...":text);
+        p1.style.background = '#ec4899';
+        p1.style.boxShadow = '0 0 8px #ec4899';
+        p1.style.display = 'block';
+        p1.style.animation = 'moveRight1 1s forwards ease-in-out';
+    } else if (index === 5) {
+        l1.style.background = '#ec4899';
+        l2.style.background = '#3b82f6';
+        pStat.textContent = "Bytes \\n";
+        p2.style.background = '#3b82f6';
+        p2.style.boxShadow = '0 0 8px #3b82f6';
+        p2.style.display = 'block';
+        p2.style.animation = 'moveRight2 1s forwards ease-in-out';
+    } else if (index === 6) {
+        l1.style.background = '#ec4899';
+        l2.style.background = '#3b82f6';
+        sStat.textContent = "Broadcast";
+        p2.style.background = '#3b82f6';
+        p2.style.boxShadow = '0 0 8px #3b82f6';
+        p2.style.display = 'block';
+        p2.style.animation = 'moveLeft2 1s forwards ease-in-out';
+    } else if (index === 7) {
+        l1.style.background = '#ec4899';
+        l2.style.background = '#3b82f6';
+        pStat.textContent = "To WS Frame";
+        p1.style.background = '#ec4899';
+        p1.style.boxShadow = '0 0 8px #ec4899';
+        p1.style.display = 'block';
+        p1.style.animation = 'moveLeft1 1s forwards ease-in-out';
+        setTimeout(() => { if (index===7) bMsg.textContent = "Rendered!"; }, 950);
+    }
+}
+
+function render(){
+    const s=stages[index];
+    $('stepCount').textContent=`Stage ${index+1} of ${stages.length}`;
+    $('stepTag').textContent=s.tag;
+    $('progressBar').style.width=(Math.max(1, (index+1)/stages.length*100))+'%';
+    $('stageTitle').textContent=s.title;
+    $('stageDesc').textContent=s.desc;
+    $('stageDetail').textContent=s.detail;
+    $('snippetCode').textContent=s.code;
+    
+    $('prevBtn').disabled=index===0;
+    $('nextBtn').textContent=index===stages.length-1?'Restart walkthrough →':'Next stage →';
+    $('live').textContent=`Showing stage ${index+1}: ${s.tag}`;
+    
+    updateVisual();
+}
+
+function stop(){if(timer){clearInterval(timer);timer=null;}$('playBtn').textContent='▶ Play walkthrough'}
+
+$('nextBtn').addEventListener('click',()=>{stop();index=index===stages.length-1?0:index+1;render()});
+$('prevBtn').addEventListener('click',()=>{stop();index=Math.max(0,index-1);render()});
+$('resetBtn').addEventListener('click',()=>{stop();index=0;$('chatMsg').value='Hello everyone!'; $('msgSummary').textContent = 'Payload ready: "Hello everyone!"'; render()});
+$('playBtn').addEventListener('click',()=>{
+    if(timer){stop();return;}
+    $('playBtn').textContent='Ⅱ Pause walkthrough';
+    timer=setInterval(()=>{
+        if(index>=stages.length-1){stop();return;}
+        index++;render();
+    }, 3500);
+});
+$('chatMsg').addEventListener('input',()=>{ 
+    $('msgSummary').textContent = 'Payload ready: "' + $('chatMsg').value + '"'; 
+    if(index === 4) {
+        let text = $('chatMsg').value;
+        $('browser-msg').textContent = "Send: " + (text.length>7?text.substring(0,7)+"...":text);
+    }
+});
+
+render();
+})();
+</script>
+</body>
+</html>

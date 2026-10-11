@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  # The Backend Java Server
+  chat-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    ports:
+      - "8189:8189"
+
+  # The Node.js Proxy & Web Host
+  chat-web:
+    build:
+      context: .
+      dockerfile: Dockerfile.bridge
+    ports:
+      - "8080:8080"
+    environment:
+      # Tell the Node.js bridge to connect to the docker container named 'chat-server' instead of localhost
+      - TCP_HOST=chat-server
+    depends_on:
+      - chat-server

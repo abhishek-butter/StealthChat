@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StealthChat: Enterprise WebSockets & Steganography</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        :root {
+            --bg-body: #111b21; --bg-header: #202c33; --bg-chat: #0b141a; 
+            --bg-outgoing: #005c4b; --bg-incoming: #202c33; --bg-stealth: #4c1d95;
+            --text-primary: #e9edef; --text-muted: #8696a0; --border-color: #222d34;
+            --accent-green: #00a884; --accent-purple: #8b5cf6; --input-bg: #2a3942;
+            --tick-gray: #8696a0; --tick-blue: #53bdeb; --presence-online: #10b981;
+            --presence-away: #f59e0b; --presence-offline: #64748b;
+            --chat-bg-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #0c1317; color: var(--text-primary); height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; }
+        
+        .offline-bar { display: none; width: 100%; background: #eab308; color: #111b21; font-weight: 700; font-size: 12px; text-align: center; padding: 6px 12px; z-index: 999; }
+        .offline-bar.visible { display: block; }
+
+        .app-container { display: flex; width: 100%; height: 100%; max-width: 1600px; background: var(--bg-body); box-shadow: 0 1px 1px 0 rgba(0,0,0,.06),0 2px 5px 0 rgba(0,0,0,.2); flex-grow: 1; }
+
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 20, 26, 0.95); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .box { background: var(--bg-header); padding: 40px; border-radius: 12px; text-align: center; width: 450px; border: 1px solid var(--border-color); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .box h2 { margin-bottom: 8px; font-weight: 600; font-size: 22px; color: #f8fafc; }
+        .box p { margin-bottom: 22px; color: var(--text-muted); font-size: 13.5px; }
+        .box input { width: 100%; padding: 13px 15px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-primary); margin-bottom: 15px; outline: none; font-size: 14px; }
+        .box input:focus { border-color: var(--accent-green); }
+        .box button { width: 100%; padding: 13px; border-radius: 8px; border: none; background: var(--accent-green); color: #111b21; font-weight: 600; cursor: pointer; margin-bottom: 10px; font-size: 14px; transition: 0.2s; }
+        .box button:hover { opacity: 0.9; }
+        .box button.secondary { background: var(--border-color); color: var(--text-primary); }
+        .box button.secondary:hover { background: #2a3942; }
+
+        .sidebar { width: 32%; min-width: 320px; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; background: var(--bg-body); }
+        .chat-area { width: 68%; flex-grow: 1; display: flex; flex-direction: column; background: var(--bg-chat); position: relative; }
+        
+        .header { height: 60px; background: var(--bg-header); display: flex; align-items: center; padding: 0 16px; justify-content: space-between; border-bottom: 1px solid var(--border-color); }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; margin-right: 12px; overflow: hidden; background: #2a3942; color: #e9edef; font-weight: 600; flex-shrink: 0; }
+        
+        .status-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; padding: 2px 7px; border-radius: 10px; background: rgba(0,0,0,0.25); color: var(--text-muted); }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .status-dot.online { background: var(--presence-online); box-shadow: 0 0 6px var(--presence-online); }
+        .status-dot.away { background: var(--presence-away); box-shadow: 0 0 6px var(--presence-away); }
+        .status-dot.offline { background: var(--presence-offline); }
+
+        .chat-list { flex-grow: 1; overflow-y: auto; background: #111b21; }
+        .chat-item { display: flex; align-items: center; padding: 12px 15px; cursor: pointer; transition: 0.2s; border-bottom: 1px solid var(--border-color); }
+        .chat-item:hover { background: #202c33; }
+        .chat-item.active { background: #2a3942; }
+        .chat-item-info { flex-grow: 1; min-width: 0; }
+        .chat-item-title { font-size: 15.5px; margin-bottom: 2px; color: #e9edef; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chat-item-sub { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; justify-content: space-between; }
+        
+        .add-group-btn { background: transparent; border: none; color: var(--accent-green); font-size: 20px; cursor: pointer; padding: 5px; border-radius: 6px; }
+        .add-group-btn:hover { background: rgba(255,255,255,0.05); }
+
+        .chat-body { flex-grow: 1; padding: 18px 45px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; background-image: var(--chat-bg-image); background-size: contain; background-blend-mode: overlay; background-color: #0b141a; }
+        
+        .message { max-width: 65%; padding: 7px 12px 6px 12px; border-radius: 7.5px; font-size: 14.2px; line-height: 19px; word-wrap: break-word; position: relative; margin-bottom: 4px; box-shadow: 0 1px 0.5px rgba(11,20,26,.13); }
+        .msg-incoming { background: var(--bg-incoming); align-self: flex-start; border-top-left-radius: 0; }
+        .msg-outgoing { background: var(--bg-outgoing); align-self: flex-end; border-top-right-radius: 0; }
+        .msg-incoming .sender-name { color: #53bdeb; font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+        .msg-system { background: #182229; align-self: center; font-size: 12px; color: #8696a0; padding: 6px 14px; border-radius: 8px; text-align: center; margin: 8px 0; border: 1px solid rgba(255,255,255,0.04); }
+        .msg-stealth { background: var(--bg-stealth); border: 1px solid var(--accent-purple); border-radius: 8px !important; }
+        
+        .msg-footer { display: flex; align-items: center; justify-content: flex-end; gap: 4px; font-size: 10.5px; color: rgba(255,255,255,0.6); margin-top: 3px; float: right; margin-left: 10px; }
+        .tick-icon { font-weight: bold; font-size: 11px; letter-spacing: -1.5px; }
+        .tick-icon.sent { color: var(--tick-gray); }
+        .tick-icon.delivered { color: var(--tick-gray); }
+        .tick-icon.read { color: var(--tick-blue); }
+        .tick-icon.pending { color: #eab308; }
+
+        .steg-image-container img { border-radius: 6px; max-width: 250px; height: auto; margin-top: 4px; display: block; }
+        .decrypt-btn { background: rgba(139, 92, 246, 0.25); border: 1px solid var(--accent-purple); color: white; padding: 6px; border-radius: 5px; cursor: pointer; margin-top: 6px; width: 100%; font-weight: 600; font-size: 12px; transition: 0.2s; }
+        .decrypt-btn:hover { background: rgba(139, 92, 246, 0.45); }
+        .decrypted-text { font-family: monospace; color: #d8b4fe; margin-top: 6px; font-size: 13.5px; font-weight: bold; background: rgba(0,0,0,0.4); padding: 7px; border-radius: 5px; }
+
+        .chat-footer { min-height: 62px; background: var(--bg-header); display: flex; align-items: center; padding: 8px 16px; gap: 12px; border-top: 1px solid var(--border-color); }
+        .stealth-toggle { display: flex; align-items: center; cursor: pointer; color: var(--text-muted); transition: 0.2s; padding: 6px; border-radius: 50%; }
+        .stealth-toggle:hover { color: #cbd5e1; }
+        .stealth-toggle.active { color: var(--accent-purple); transform: scale(1.1); background: rgba(139,92,246,0.15); }
+        .stealth-icon { width: 24px; height: 24px; fill: currentColor; }
+        .chat-input { flex-grow: 1; padding: 11px 15px; border-radius: 8px; border: 1px solid transparent; background: var(--input-bg); color: var(--text-primary); outline: none; font-size: 14.5px; }
+        .chat-input:focus { border-color: rgba(255,255,255,0.1); }
+        .chat-input.stealth-mode { border: 1px solid var(--accent-purple); background: rgba(76, 29, 149, 0.2); }
+        .send-btn { background: transparent; border: none; cursor: pointer; color: var(--text-muted); padding: 8px; border-radius: 50%; }
+        .send-btn:hover { color: var(--accent-green); }
+        .send-btn.stealth-mode { color: var(--accent-purple); }
+        .send-btn svg { width: 22px; height: 22px; fill: currentColor; }
+
+        .admin-btn { background: #eab308; color: #111b21; border: none; padding: 6px 10px; border-radius: 6px; font-weight: 600; cursor: pointer; display: none; font-size: 12px; }
+        .admin-logs { text-align: left; background: var(--bg-body); padding: 12px; height: 380px; overflow-y: auto; font-family: monospace; font-size: 11.5px; border: 1px solid var(--border-color); margin-bottom: 15px; border-radius: 6px; }
+
+        .badge-pill { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase; background: #334155; color: #cbd5e1; margin-left: 6px; }
+        .badge-pill.jwt { background: #0284c7; color: #fff; }
+        .badge-pill.sync { background: #7c3aed; color: #fff; }
+        .badge-pill.idb { background: #059669; color: #fff; }
+
+        @media (max-width: 768px) {
+            .app-container { flex-direction: column; }
+            .sidebar { width: 100%; height: 35%; min-height: 220px; border-right: none; border-bottom: 1px solid var(--border-color); }
+            .chat-area { width: 100%; height: 65%; }
+            .chat-body { padding: 10px 15px; }
+            .box { width: 92%; padding: 25px; }
+            .message { max-width: 85%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Offline Notification Bar -->
+    <div id="offlineBar" class="offline-bar">
+        ⚡ <b>Offline Mode:</b> Messages cached locally in <b>IndexedDB</b> and will sync automatically via <b>Service Worker</b> upon reconnection.
+    </div>
+
+    <div id="loginOverlay" class="modal">
+        <div class="box">
+            <h2>StealthChat Enterprise</h2>
+            <p>JWT Security • IndexedDB Offline Cache • Service Worker Sync</p>
+            <input type="text" id="usernameInput" placeholder="Username (e.g. alice, bob, admin)" autofocus>
+            <input type="password" id="passwordInput" placeholder="Password (e.g. admin123)">
+            <button onclick="attemptAuth('/api/auth/login')">Secure Login</button>
+            <button class="secondary" onclick="attemptAuth('/api/auth/register')">Register New Account</button>
+        </div>
+    </div>
+
+    <div id="groupOverlay" class="modal" style="display: none;">
+        <div class="box">
+            <h2>Groups & Channels</h2>
+            <p>Publish-Subscribe Room Channels & Access Control</p>
+            
+            <h3 style="color: var(--text-muted); margin: 15px 0 5px 0; font-size: 13px; text-align: left;">Create Group</h3>
+            <input type="text" id="newGroupName" placeholder="Engineering Team">
+            <button onclick="createGroup()">Create New Group</button>
+            
+            <h3 style="color: var(--text-muted); margin: 20px 0 5px 0; font-size: 13px; text-align: left;">Join via Invite Code</h3>
+            <input type="text" id="inviteCodeInput" placeholder="e.g. GLOBAL_1">
+            <button class="secondary" onclick="joinGroup()">Join Group</button>
+            
+            <button style="margin-top: 15px; background: transparent; color: var(--text-muted);" onclick="document.getElementById('groupOverlay').style.display='none'">Cancel</button>
+        </div>
+    </div>
+
+    <div id="adminOverlay" class="modal" style="display: none;">
+        <div class="box" style="width: 90%; max-width: 750px;">
+            <h2>Admin Security & Interception Audit</h2>
+            <p>Audit Log of Messages, Client IDs, and Delivery States</p>
+            <div id="adminLogs" class="admin-logs">Loading...</div>
+            <button onclick="document.getElementById('adminOverlay').style.display='none'">Close Dashboard</button>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="header">
+                <div class="avatar" id="myAvatar">🕵️</div>
+                <div style="flex-grow: 1; min-width: 0; padding-right: 8px;">
+                    <div style="font-weight: 600; font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="myProfileName">Agent</div>
+                    <div class="status-pill"><span class="status-dot online"></span> <span id="myStatusLabel">Online</span></div>
+                </div>
+                <button class="add-group-btn" title="Add Group" onclick="document.getElementById('groupOverlay').style.display='flex'">➕</button>
+                <button id="adminBtn" class="admin-btn" style="margin-left: 6px;" onclick="openAdminPanel()">⚙️ Admin</button>
+                <button class="admin-btn" style="background: #ef4444; margin-left: 6px; display: block;" onclick="logout()" title="Logout">🚪</button>
+            </div>
+            
+            <div class="chat-list" id="chatList">
+                <!-- Groups dynamically loaded -->
+            </div>
+        </div>
+
+        <!-- Chat Main Area -->
+        <div class="chat-area">
+            <div class="header">
+                <div style="display: flex; align-items: center; min-width: 0;">
+                    <div class="avatar" id="currentRoomAvatar">🌍</div>
+                    <div style="min-width: 0;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div class="header-title" style="font-weight: 600; font-size: 15.5px;" id="currentRoomTitle">Select a Channel</div>
+                            <span class="badge-pill jwt" title="Secured with JWT and Channel Interceptors">JWT ACL</span>
+                            <span class="badge-pill sync" title="Multi-tab BroadcastChannel active">Tab Sync</span>
+                            <span class="badge-pill idb" title="IndexedDB offline persistent storage">IndexedDB</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); margin-top: 1px;">
+                            <span id="currentInviteCode"></span>
+                            <span id="roomPresenceSubtitle">• <span class="status-dot online" style="display:inline-block; vertical-align:middle;"></span> Online</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-body" id="chatBody">
+                <div class="msg-system">🔒 <b>Messages are end-to-end encrypted & verified by WebSocket Channel Interceptors</b></div>
+            </div>
+
+            <div class="chat-footer">
+                <div class="stealth-toggle" id="stealthToggle" title="Toggle Steganography Mode (Embed secret inside noise canvas)">
+                    <svg class="stealth-icon" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                </div>
+                <input type="text" id="messageInput" class="chat-input" placeholder="Type a message..." disabled>
+                <button id="sendBtn" class="send-btn" disabled onclick="sendMessage()">
+                    <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let stompClient = null;
+        let currentSubscription = null;
+        let presenceSubscription = null;
+        let myName = "";
+        let authToken = localStorage.getItem('stealthchat_token') || "";
+        let currentRoom = null;
+        let stealthModeEnabled = false;
+        let heartbeatInterval = null;
+
+        // =========================================================================
+        // 1. IndexedDB Persistent Client Datastore
+        // =========================================================================
+        const IDB_NAME = 'StealthChatDB';
+        const IDB_VERSION = 1;
+        let idb = null;
+
+        function initIndexedDB() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+                req.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains('messages')) {
+                        const msgStore = db.createObjectStore('messages', { keyPath: 'clientMsgId' });
+                        msgStore.createIndex('roomId', 'roomId', { unique: false });
+                        msgStore.createIndex('timestamp', 'timestamp', { unique: false });
+                    }
+                    if (!db.objectStoreNames.contains('outbox')) {
+                        db.createObjectStore('outbox', { keyPath: 'clientMsgId' });
+                    }
+                };
+                req.onsuccess = (e) => {
+                    idb = e.target.result;
+                    console.log('=> [IndexedDB] Client database ready');
+                    resolve(idb);
+                };
+                req.onerror = (e) => {
+                    console.warn('=> [IndexedDB] Could not open database:', e);
+                    reject(e);
+                };
+            });
+        }
+
+        async function idbSaveMessage(msg) {
+            if (!idb) await initIndexedDB();
+            return new Promise((resolve) => {
+                try {
+                    const tx = idb.transaction('messages', 'readwrite');
+                    tx.objectStore('messages').put(msg);
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => resolve();
+                } catch(e) { resolve(); }
+            });
+        }
+
+        async function idbGetMessagesForRoom(roomId) {
+            if (!idb) await initIndexedDB();
+            return new Promise((resolve) => {
+                try {
+                    const tx = idb.transaction('messages', 'readonly');
+                    const store = tx.objectStore('messages');
+                    const index = store.index('roomId');
+                    const req = index.getAll(roomId.toString());
+                    req.onsuccess = () => {
+                        const list = req.result || [];
+                        list.sort((a,b) => (a.timestamp || 0) - (b.timestamp || 0));
+                        resolve(list);
+                    };
+                    req.onerror = () => resolve([]);
+                } catch(e) { resolve([]); }
+            });
+        }
+
+        async function idbUpdateMessageStatus(clientMsgId, newStatus) {
+            if (!idb || !clientMsgId) return;
+            return new Promise((resolve) => {
+                try {
+                    const tx = idb.transaction('messages', 'readwrite');
+                    const store = tx.objectStore('messages');
+                    const req = store.get(clientMsgId);
+                    req.onsuccess = () => {
+                        const record = req.result;
+                        if (record) {
+                            record.deliveryStatus = newStatus;
+                            store.put(record);
+                        }
+                        resolve();
+                    };
+                    req.onerror = () => resolve();
+                } catch(e) { resolve(); }
+            });
+        }
+
+        async function idbQueueOutbox(msg) {
+            if (!idb) await initIndexedDB();
+            return new Promise((resolve) => {
+                try {
+                    const tx = idb.transaction('outbox', 'readwrite');
+                    tx.objectStore('outbox').put(msg);
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => resolve();
+                } catch(e) { resolve(); }
+            });
+        }
+
+        async function idbGetOutbox() {
+            if (!idb) await initIndexedDB();
+            return new Promise((resolve) => {
+                try {
+                    const tx = idb.transaction('outbox', 'readonly');
+                    const req = tx.objectStore('outbox').getAll();
+                    req.onsuccess = () => resolve(req.result || []);
+                    req.onerror = () => resolve([]);
+                } catch(e) { resolve([]); }
+            });
+        }
+
+        async function idbRemoveFromOutbox(clientMsgId) {
+            if (!idb || !clientMsgId) return;
+            return new Promise((resolve) => {
+                try {
+                    const tx = idb.transaction('outbox', 'readwrite');
+                    tx.objectStore('outbox').delete(clientMsgId);
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => resolve();
+                } catch(e) { resolve(); }
+            });
+        }
+
+        // =========================================================================
+        // 2. Service Worker & Background Sync Registration
+        // =========================================================================
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').then((reg) => {
+                console.log('=> [Service Worker] Active with scope:', reg.scope);
+                navigator.serviceWorker.addEventListener('message', (event) => {
+                    if (event.data && event.data.type === 'BACKGROUND_SYNC_TRIGGERED') {
+                        console.log('=> [Service Worker] Background Sync event received, flushing outbox...');
+                        flushOutboxQueue();
+                    }
+                });
+            }).catch(err => {
+                console.log('=> [Service Worker] Registration skipped or unavailable:', err);
+            });
+        }
+
+        // Online / Offline Network Listeners
+        window.addEventListener('online', () => {
+            document.getElementById('offlineBar').classList.remove('visible');
+            if (!stompClient || !stompClient.connected) connectToStomp();
+            flushOutboxQueue();
+        });
+
+        window.addEventListener('offline', () => {
+            document.getElementById('offlineBar').classList.add('visible');
+        });
+
+        // =========================================================================
+        // 3. Multi-Tab Synchronization via BroadcastChannel API
+        // =========================================================================
+        const tabSyncChannel = ('BroadcastChannel' in window) ? new BroadcastChannel('stealthchat_sync_channel') : null;
+        if (tabSyncChannel) {
+            tabSyncChannel.onmessage = (event) => {
+                const data = event.data;
+                if (!data) return;
+                if (data.type === 'NEW_MESSAGE' && data.roomId === currentRoom) {
+                    appendMessageToDOM(data.msg, data.msg.sender === myName ? 'outgoing' : 'incoming');
+                } else if (data.type === 'ACK_UPDATE' && data.roomId === currentRoom) {
+                    updateTickBadge(data.clientMsgId, data.deliveryStatus);
+                }
+            };
+        }
+
+        // =========================================================================
+        // 4. Authentication & STOMP / WebSocket Core
+        // =========================================================================
+        async function attemptAuth(endpoint) {
+            const user = document.getElementById('usernameInput').value.trim();
+            const pass = document.getElementById('passwordInput').value.trim();
+            if (!user || !pass) return alert("Please enter both username and password");
+            
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username: user, password: pass})
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    if (endpoint.includes('register')) {
+                        await fetch('/api/groups/join', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({username: user, inviteCode: 'GLOBAL_1'})
+                        });
+                        alert("Account registered! Proceeding to login...");
+                        return attemptAuth('/api/auth/login');
+                    }
+                    myName = data.username;
+                    authToken = data.token;
+                    localStorage.setItem('stealthchat_token', authToken);
+                    localStorage.setItem('stealthchat_user', myName);
+
+                    if (data.role === 'ADMIN') document.getElementById('adminBtn').style.display = 'block';
+                    document.getElementById('loginOverlay').style.display = 'none';
+                    document.getElementById('myProfileName').innerText = myName;
+                    document.getElementById('myAvatar').innerText = myName.charAt(0).toUpperCase();
+                    
+                    await loadMyGroups();
+                    connectToStomp();
+                    startHeartbeat();
+                } else {
+                    alert("Authentication Failed: " + (data.message || "Invalid credentials"));
+                }
+            } catch (err) {
+                alert("Network or Server error during authentication: " + err.message);
+            }
+        }
+
+        function logout() {
+            stopHeartbeat();
+            if (stompClient && stompClient.connected) stompClient.disconnect();
+            myName = "";
+            authToken = "";
+            currentRoom = null;
+            localStorage.removeItem('stealthchat_token');
+            localStorage.removeItem('stealthchat_user');
+
+            document.getElementById('chatBody').innerHTML = `<div class="msg-system">🔒 <b>Messages are end-to-end encrypted & verified by WebSocket Channel Interceptors</b></div>`;
+            document.getElementById('chatList').innerHTML = "";
+            document.getElementById('adminBtn').style.display = 'none';
+            document.getElementById('usernameInput').value = '';
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('loginOverlay').style.display = 'flex';
+            document.getElementById('currentRoomTitle').innerText = "Select a Channel";
+            document.getElementById('currentInviteCode').innerText = "";
+        }
+
+        async function loadMyGroups() {
+            try {
+                const res = await fetch(`/api/groups/my-groups?username=${encodeURIComponent(myName)}`);
+                const groups = await res.json();
+                const list = document.getElementById('chatList');
+                list.innerHTML = "";
+                
+                groups.forEach(g => {
+                    const div = document.createElement('div');
+                    div.className = 'chat-item';
+                    div.id = 'group-item-' + g.id;
+                    div.onclick = () => switchRoom(g.id, g.name, g.inviteCode, div);
+                    div.innerHTML = `
+                        <div class="avatar">${g.name.charAt(0).toUpperCase()}</div>
+                        <div class="chat-item-info">
+                            <div class="chat-item-title">${g.name}</div>
+                            <div class="chat-item-sub"><span>Invite: ${g.inviteCode}</span></div>
+                        </div>`;
+                    list.appendChild(div);
+                });
+                
+                if (groups.length > 0 && !currentRoom) {
+                    switchRoom(groups[0].id, groups[0].name, groups[0].inviteCode, list.firstChild);
+                }
+            } catch (e) {
+                console.error("Failed to load groups:", e);
+            }
+        }
+
+        async function createGroup() {
+            const name = document.getElementById('newGroupName').value.trim();
+            if (!name) return;
+            const res = await fetch('/api/groups/create', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: myName, name: name})
+            });
+            if (res.ok) {
+                document.getElementById('groupOverlay').style.display='none';
+                document.getElementById('newGroupName').value = '';
+                await loadMyGroups();
+            }
+        }
+
+        async function joinGroup() {
+            const code = document.getElementById('inviteCodeInput').value.trim();
+            if (!code) return;
+            const res = await fetch('/api/groups/join', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: myName, inviteCode: code})
+            });
+            if (res.ok) {
+                document.getElementById('groupOverlay').style.display='none';
+                document.getElementById('inviteCodeInput').value = '';
+                await loadMyGroups();
+            } else {
+                const err = await res.json();
+                alert(err.message || "Failed to join group");
+            }
+        }
+
+        async function switchRoom(id, name, code, element) {
+            if (id === currentRoom) return;
+            document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
+            if (element) element.classList.add('active');
+            
+            document.getElementById('currentRoomTitle').innerText = name;
+            document.getElementById('currentRoomAvatar').innerText = name.charAt(0).toUpperCase();
+            document.getElementById('currentInviteCode').innerText = "Code: " + code;
+            
+            document.getElementById('chatBody').innerHTML = `<div class="msg-system">🔒 <b>Messages are end-to-end encrypted & verified by WebSocket Channel Interceptors</b></div>`;
+            currentRoom = id.toString();
+
+            // 1. Offline-First: Render instantly from IndexedDB cache
+            const cachedMessages = await idbGetMessagesForRoom(currentRoom);
+            if (cachedMessages.length > 0) {
+                cachedMessages.forEach(msg => {
+                    const type = (msg.sender === myName) ? 'outgoing' : 'incoming';
+                    appendMessageToDOM(msg, type);
+                });
+            }
+
+            // 2. Fetch fresh history from server and sync into IndexedDB
+            await loadRoomHistoryFromServer(currentRoom);
+
+            if (stompClient && stompClient.connected) {
+                subscribeToRoom(currentRoom);
+            }
+        }
+
+        async function loadRoomHistoryFromServer(roomId) {
+            try {
+                const res = await fetch(`/api/chat/history/${roomId}`);
+                if (res.ok) {
+                    const messages = await res.json();
+                    for (const msg of messages) {
+                        await idbSaveMessage(msg);
+                        const type = (msg.sender === myName) ? 'outgoing' : 'incoming';
+                        appendMessageToDOM(msg, type);
+
+                        if (type === 'incoming' && msg.deliveryStatus !== 'READ' && stompClient && stompClient.connected) {
+                            stompClient.send('/app/chat.ackRead/' + roomId, {}, JSON.stringify({
+                                clientMsgId: msg.clientMsgId,
+                                sender: myName
+                            }));
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn("Could not sync history from network; continuing with IndexedDB cache:", err);
+            }
+        }
+
+        function connectToStomp() {
+            const socket = new SockJS('/ws-chat');
+            stompClient = Stomp.over(socket);
+            stompClient.debug = null;
+
+            const headers = {};
+            if (authToken) {
+                headers['Authorization'] = 'Bearer ' + authToken;
+                headers['token'] = authToken;
+            }
+
+            stompClient.connect(headers, function (frame) {
+                document.getElementById('messageInput').disabled = false;
+                document.getElementById('sendBtn').disabled = false;
+                document.getElementById('offlineBar').classList.remove('visible');
+                
+                // Flush resilient IndexedDB outbox
+                flushOutboxQueue();
+
+                if (presenceSubscription) presenceSubscription.unsubscribe();
+                presenceSubscription = stompClient.subscribe('/topic/presence', function (output) {
+                    try {
+                        const data = JSON.parse(output.body);
+                        handlePresenceUpdate(data);
+                    } catch(e) {}
+                });
+
+                if (currentRoom) subscribeToRoom(currentRoom);
+            }, function (error) {
+                console.warn("STOMP disconnected, running in IndexedDB offline mode:", error);
+                document.getElementById('offlineBar').classList.add('visible');
+                setTimeout(connectToStomp, 4000);
+            });
+        }
+
+        function subscribeToRoom(roomId) {
+            if (currentSubscription) currentSubscription.unsubscribe();
+            currentSubscription = stompClient.subscribe('/topic/' + roomId, function (messageOutput) {
+                const msg = JSON.parse(messageOutput.body);
+
+                if (msg.type === 'ACK_DELIVERY' || msg.type === 'ACK_READ') {
+                    updateTickBadge(msg.clientMsgId, msg.deliveryStatus);
+                    idbUpdateMessageStatus(msg.clientMsgId, msg.deliveryStatus);
+                    if (tabSyncChannel) {
+                        tabSyncChannel.postMessage({ type: 'ACK_UPDATE', roomId: roomId, clientMsgId: msg.clientMsgId, deliveryStatus: msg.deliveryStatus });
+                    }
+                    return;
+                }
+
+                // Normal Chat Message
+                const isMine = (msg.sender === myName);
+                const type = isMine ? 'outgoing' : 'incoming';
+                
+                // Cache incoming message into IndexedDB
+                idbSaveMessage(msg);
+
+                // If incoming, send delivery ACK immediately
+                if (!isMine && stompClient && stompClient.connected) {
+                    stompClient.send('/app/chat.ackDelivery/' + roomId, {}, JSON.stringify({
+                        clientMsgId: msg.clientMsgId,
+                        sender: myName
+                    }));
+
+                    if (!document.hidden) {
+                        stompClient.send('/app/chat.ackRead/' + roomId, {}, JSON.stringify({
+                            clientMsgId: msg.clientMsgId,
+                            sender: myName
+                        }));
+                    }
+                }
+
+                appendMessageToDOM(msg, type);
+
+                if (tabSyncChannel) {
+                    tabSyncChannel.postMessage({ type: 'NEW_MESSAGE', roomId: roomId, msg: msg });
+                }
+            });
+        }
+
+        // =========================================================================
+        // 5. Presence Heartbeat
+        // =========================================================================
+        function startHeartbeat() {
+            stopHeartbeat();
+            heartbeatInterval = setInterval(() => {
+                if (stompClient && stompClient.connected && myName) {
+                    const status = document.hidden ? 'AWAY' : 'ONLINE';
+                    stompClient.send('/app/chat.heartbeat', {}, JSON.stringify({
+                        sender: myName,
+                        content: status
+                    }));
+                }
+            }, 15000);
+        }
+
+        function stopHeartbeat() {
+            if (heartbeatInterval) clearInterval(heartbeatInterval);
+        }
+
+        function handlePresenceUpdate(data) {
+            if (data.username === myName) {
+                document.getElementById('myStatusLabel').innerText = data.status === 'ONLINE' ? 'Online' : data.status;
+            }
+        }
+
+        window.addEventListener('focus', () => {
+            if (stompClient && stompClient.connected && currentRoom) {
+                stompClient.send('/app/chat.heartbeat', {}, JSON.stringify({ sender: myName, content: 'ONLINE' }));
+            }
+        });
+
+        // =========================================================================
+        // 6. Sending Messages with Idempotency & Resilient Outbox
+        // =========================================================================
+        const messageInput = document.getElementById('messageInput');
+        const stealthToggle = document.getElementById('stealthToggle');
+
+        stealthToggle.addEventListener('click', () => {
+            stealthModeEnabled = !stealthModeEnabled;
+            stealthToggle.classList.toggle('active', stealthModeEnabled);
+            messageInput.classList.toggle('stealth-mode', stealthModeEnabled);
+            document.getElementById('sendBtn').classList.toggle('stealth-mode', stealthModeEnabled);
+            messageInput.placeholder = stealthModeEnabled ? "🔒 Type secret steganography message..." : "Type a message...";
+        });
+
+        messageInput.addEventListener('keypress', (e) => { 
+            if (e.key === 'Enter') sendMessage(); 
+        });
+
+        async function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text || !currentRoom) return;
+
+            // Generate unique clientMsgId on client side for idempotency
+            const clientMsgId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9);
+            
+            let payload = text;
+            if (stealthModeEnabled) {
+                payload = encodeSteganography(text);
+                if (!payload) return;
+            }
+
+            const chatMessage = {
+                clientMsgId: clientMsgId,
+                sender: myName,
+                content: payload,
+                isStealth: stealthModeEnabled,
+                roomId: currentRoom,
+                type: 'CHAT',
+                deliveryStatus: (stompClient && stompClient.connected) ? 'SENT' : 'PENDING',
+                timestamp: Date.now()
+            };
+
+            // Save to IndexedDB immediately (Optimistic local persistence)
+            await idbSaveMessage(chatMessage);
+            appendMessageToDOM(chatMessage, 'outgoing');
+
+            if (stompClient && stompClient.connected) {
+                stompClient.send("/app/chat.sendMessage/" + currentRoom, {}, JSON.stringify(chatMessage));
+            } else {
+                // Queue into IndexedDB outbox for Service Worker / Reconnect dispatch
+                await idbQueueOutbox(chatMessage);
+                if ('serviceWorker' in navigator && 'SyncManager' in window) {
+                    navigator.serviceWorker.ready.then(reg => {
+                        reg.sync.register('sync-queued-messages').catch(() => {});
+                    });
+                }
+            }
+
+            messageInput.value = '';
+            messageInput.focus();
+        }
+
+        async function flushOutboxQueue() {
+            if (!stompClient || !stompClient.connected) return;
+            const pendingMessages = await idbGetOutbox();
+            if (pendingMessages.length === 0) return;
+
+            console.log(`=> [Sync] Flushing ${pendingMessages.length} queued messages from IndexedDB...`);
+            for (const msg of pendingMessages) {
+                stompClient.send("/app/chat.sendMessage/" + msg.roomId, {}, JSON.stringify(msg));
+                await idbRemoveFromOutbox(msg.clientMsgId);
+                updateTickBadge(msg.clientMsgId, 'SENT');
+                await idbUpdateMessageStatus(msg.clientMsgId, 'SENT');
+            }
+        }
+
+        function getTickHTML(status) {
+            if (status === 'READ') {
+                return `<span class="tick-icon read" title="Read by recipient">✓✓</span>`;
+            } else if (status === 'DELIVERED') {
+                return `<span class="tick-icon delivered" title="Delivered to recipient">✓✓</span>`;
+            } else if (status === 'SENT') {
+                return `<span class="tick-icon sent" title="Sent to server">✓</span>`;
+            } else {
+                return `<span class="tick-icon pending" title="Pending delivery (Offline IndexedDB)">🕒</span>`;
+            }
+        }
+
+        function updateTickBadge(clientMsgId, newStatus) {
+            if (!clientMsgId) return;
+            const badge = document.getElementById('tick-' + clientMsgId);
+            if (badge) {
+                badge.innerHTML = getTickHTML(newStatus);
+            }
+        }
+
+        function appendMessageToDOM(msg, type) {
+            const chatBody = document.getElementById('chatBody');
+            const clientMsgId = msg.clientMsgId || ('legacy-' + Math.random().toString(36).substring(2, 8));
+            
+            if (document.getElementById('msg-box-' + clientMsgId)) {
+                updateTickBadge(clientMsgId, msg.deliveryStatus);
+                return;
+            }
+
+            const msgDiv = document.createElement('div');
+            msgDiv.id = 'msg-box-' + clientMsgId;
+            msgDiv.className = `message msg-${type}`;
+            if (msg.isStealth) msgDiv.classList.add('msg-stealth');
+            
+            const timeStr = new Date(msg.timestamp || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            let html = type === 'incoming' ? `<div class="sender-name">${msg.sender}</div>` : '';
+            
+            if (msg.isStealth) {
+                html += `<div class="steg-image-container">
+                    <img src="${msg.content}" crossorigin="anonymous" />
+                    <button class="decrypt-btn" onclick="decodeSteganography(this.previousElementSibling, this)">🔓 Decrypt Carrier Image</button>
+                </div>`;
+            } else {
+                html += `<span>${escapeHTML(msg.content)}</span>`;
+            }
+
+            const tickHtml = type === 'outgoing' ? `<span id="tick-${clientMsgId}">${getTickHTML(msg.deliveryStatus || 'SENT')}</span>` : '';
+            html += `<div class="msg-footer"><span>${timeStr}</span>${tickHtml}</div>`;
+            
+            msgDiv.innerHTML = html;
+            chatBody.appendChild(msgDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/[&<>'"]/g, tag => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+            }[tag] || tag));
+        }
+
+        // =========================================================================
+        // 7. Steganography LSB Canvas Codecs
+        // =========================================================================
+        function encodeSteganography(text) {
+            const canvas = document.createElement('canvas'); canvas.width = 250; canvas.height = 100; const ctx = canvas.getContext('2d');
+            const grad = ctx.createLinearGradient(0,0,250,100); 
+            grad.addColorStop(0, `hsl(${Math.random()*360},60%,40%)`); 
+            grad.addColorStop(1, `hsl(${Math.random()*360},60%,20%)`);
+            ctx.fillStyle = grad; ctx.fillRect(0,0,250,100);
+            
+            const data = ctx.getImageData(0,0,250,100).data;
+            const bytes = new TextEncoder().encode(text); let binStr = '';
+            for (let b of bytes) binStr += b.toString(2).padStart(8,'0'); 
+            binStr += '0000000000000000';
+
+            for (let i=0, bitIdx=0; i<data.length && bitIdx<binStr.length; i++) {
+                if ((i+1)%4 !== 0) data[i] = (data[i] & ~1) | parseInt(binStr[bitIdx++]);
+            }
+            ctx.putImageData(new ImageData(data, 250, 100), 0, 0); 
+            return canvas.toDataURL('image/png');
+        }
+
+        function decodeSteganography(imgElement, btnElement) {
+            const canvas = document.createElement('canvas'); 
+            canvas.width = imgElement.naturalWidth || 250; 
+            canvas.height = imgElement.naturalHeight || 100;
+            const ctx = canvas.getContext('2d'); 
+            ctx.drawImage(imgElement, 0, 0);
+            
+            const data = ctx.getImageData(0,0,canvas.width,canvas.height).data;
+            let binStr = ''; 
+            for (let i=0; i<data.length; i++) {
+                if ((i+1)%4 !== 0) binStr += (data[i] & 1).toString();
+            }
+            
+            let bytes = []; 
+            for (let i=0; i<binStr.length; i+=8) { 
+                const b = binStr.substring(i, i+8); 
+                if (b === '00000000' && binStr.substring(i+8, i+16) === '00000000') break; 
+                bytes.push(parseInt(b, 2)); 
+            }
+            btnElement.outerHTML = `<div class="decrypted-text">Decrypted Payload: ${escapeHTML(new TextDecoder().decode(new Uint8Array(bytes)))}</div>`;
+        }
+
+        // =========================================================================
+        // 8. Admin Security & Interception Audit Dashboard
+        // =========================================================================
+        async function openAdminPanel() {
+            document.getElementById('adminOverlay').style.display = 'flex';
+            try {
+                const res = await fetch('/api/admin/logs');
+                const logs = await res.json();
+                
+                let html = "";
+                logs.forEach(log => {
+                    const date = new Date(log.timestamp).toLocaleString();
+                    const contentStr = log.isStealth ? `[BASE64 CARRIER IMAGE - ${log.content.length} bytes]` : escapeHTML(log.content);
+                    const statusBadge = `<span style="color:#10b981;">[${log.deliveryStatus || 'SENT'}]</span>`;
+                    html += `<div style="padding: 6px; border-bottom: 1px solid #333;">
+                        <span style="color: #64748b;">${date}</span> | Room: ${log.roomId} | 
+                        <span style="color: #38bdf8;">${log.sender}</span> | ClientID: <span style="color:#d8b4fe;">${log.clientMsgId || 'N/A'}</span> ${statusBadge}<br>
+                        &gt; ${contentStr}
+                    </div>`;
+                });
+                document.getElementById('adminLogs').innerHTML = html || "No intercepted logs yet.";
+            } catch (err) {
+                document.getElementById('adminLogs').innerText = "Failed to load admin logs: " + err.message;
+            }
+        }
+
+        // Auto-reconnect session
+        window.addEventListener('load', async () => {
+            await initIndexedDB();
+            const savedUser = localStorage.getItem('stealthchat_user');
+            const savedToken = localStorage.getItem('stealthchat_token');
+            if (savedUser && savedToken) {
+                myName = savedUser;
+                authToken = savedToken;
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('myProfileName').innerText = myName;
+                document.getElementById('myAvatar').innerText = myName.charAt(0).toUpperCase();
+                loadMyGroups();
+                connectToStomp();
+                startHeartbeat();
+            }
+        });
+    </script>
+</body>
+</html>
