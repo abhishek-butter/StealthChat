@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>StealthChat: The Complete Team Defense & Study Guide</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 18mm 18mm 18mm;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1e293b;
+    background: #ffffff;
+    font-size: 10.5pt;
+    line-height: 1.55;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Typography */
+  h1 { font-size: 24pt; color: #0f172a; margin-bottom: 6px; font-weight: 800; line-height: 1.2; }
+  h2 { font-size: 15pt; color: #1e3a8a; margin-top: 18pt; margin-bottom: 8pt; padding-bottom: 4pt; border-bottom: 1.5pt solid #cbd5e1; page-break-after: avoid; font-weight: 700; }
+  h3 { font-size: 12pt; color: #0369a1; margin-top: 12pt; margin-bottom: 4pt; font-weight: 600; page-break-after: avoid; }
+  p { margin-bottom: 7pt; color: #334155; }
+  ul, ol { margin-left: 18pt; margin-bottom: 8pt; }
+  li { margin-bottom: 3.5pt; }
+
+  /* Callout Boxes */
+  .callout {
+    border-radius: 6pt;
+    padding: 10pt 12pt;
+    margin: 10pt 0;
+    page-break-inside: avoid;
+    font-size: 10pt;
+  }
+  .callout-novelty {
+    background: #faf5ff;
+    border-left: 4pt solid #9333ea;
+    color: #581c87;
+  }
+  .callout-tip {
+    background: #eff6ff;
+    border-left: 4pt solid #2563eb;
+    color: #1e40af;
+  }
+  .callout-warning {
+    background: #fffbeb;
+    border-left: 4pt solid #d97706;
+    color: #92400e;
+  }
+
+  /* Concept Cards Grid */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8pt;
+    margin: 8pt 0 12pt 0;
+    page-break-inside: avoid;
+  }
+  .card {
+    background: #f8fafc;
+    border: 1pt solid #e2e8f0;
+    border-radius: 5pt;
+    padding: 8pt 10pt;
+  }
+  .card-term {
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 10.5pt;
+    margin-bottom: 2pt;
+  }
+  .card-def {
+    font-size: 9.5pt;
+    color: #475569;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10pt 0;
+    font-size: 9.5pt;
+    page-break-inside: avoid;
+  }
+  th {
+    background: #f1f5f9;
+    color: #0f172a;
+    font-weight: 700;
+    text-align: left;
+    padding: 6pt 8pt;
+    border: 1pt solid #cbd5e1;
+  }
+  td {
+    padding: 5.5pt 8pt;
+    border: 1pt solid #e2e8f0;
+    color: #334155;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td {
+    background: #f8fafc;
+  }
+
+  /* Code block */
+  .code-box {
+    background: #0f172a;
+    color: #f8fafc;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 8.5pt;
+    padding: 8pt 10pt;
+    border-radius: 4pt;
+    margin: 6pt 0 10pt 0;
+    line-height: 1.45;
+  }
+
+  /* Q&A Section */
+  .qa-item {
+    margin-bottom: 11pt;
+    page-break-inside: avoid;
+  }
+  .qa-q {
+    font-weight: 700;
+    color: #b91c1c;
+    margin-bottom: 2pt;
+    font-size: 10.5pt;
+  }
+  .qa-a {
+    background: #f8fafc;
+    border-left: 3pt solid #10b981;
+    padding: 6pt 10pt;
+    color: #1e293b;
+    border-radius: 0 4pt 4pt 0;
+  }
+
+  .page-break {
+    page-break-before: always;
+  }
+
+  .header-meta {
+    font-size: 9.5pt;
+    color: #64748b;
+    border-bottom: 1.5pt solid #e2e8f0;
+    padding-bottom: 6pt;
+    margin-bottom: 14pt;
+    display: flex;
+    justify-content: space-between;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2pt 6pt;
+    border-radius: 3pt;
+    font-size: 8pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: #e0e7ff;
+    color: #3730a3;
+  }
+</style>
+</head>
+<body>
+
+  <!-- PAGE 1 -->
+  <div class="header-meta">
+    <span><b>COMPUTER NETWORKING (CN) CASE STUDY DEFENSE GUIDE</b></span>
+    <span>PROJECT: STEALTHCHAT</span>
+  </div>
+
+  <h1>StealthChat: The Complete Team Study & Viva Guide</h1>
+  <p style="font-size: 12pt; color: #475569; margin-bottom: 10pt;">
+    <b>Master Guide for Presentation, Technical Terminology & Oral Examination (Viva)</b>
+  </p>
+
+  <div class="callout callout-warning">
+    <b>🎯 Purpose of this Guide for Teammates:</b><br>
+    Read this document before our teacher questions us! It explains <b>every piece of technical jargon from the absolute basics</b>, details the architecture of what we built, explains how our research was conducted, breaks down the <b>core novelty (our image steganography encryption)</b>, and gives you exact word-for-word answers to every trick question the teacher might throw at you.
+  </div>
+
+  <h2>1. The 30-Second Elevator Pitch (Memorize This!)</h2>
+  <div class="callout callout-tip">
+    <b>If the teacher points at you and says: "Tell me what your project is about in 30 seconds":</b><br>
+    <i>"Professor, our project is called <b>StealthChat</b>. It explores real-time multi-client communication across the networking stack. We started by building a low-level Java TCP socket server to understand raw byte streams and thread concurrency. We then evolved it into an enterprise full-stack web chat system utilizing <b>WebSockets</b>, <b>Pub/Sub message fan-out</b>, <b>JWT channel authorization</b>, and <b>IndexedDB offline caching</b>. Most importantly, our <b>core novelty</b> is an in-browser <b>Steganographic Carrier Encryption</b> method: instead of sending obvious ciphertext that triggers firewall alerts, we hide secret messages inside procedural images, completely concealing the communication from Deep Packet Inspection."</i>
+  </div>
+
+  <h2>2. Jargon Buster: Every Networking Term Explained Simply</h2>
+  <p>Here are the fundamental networking concepts used in this project, explained without confusing textbook clutter:</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-term">🔌 Socket</div>
+      <div class="card-def">The software endpoint that lets programs talk over a network. Think of it as a virtual plug socket connecting two computers over the internet.</div>
+    </div>
+    <div class="card">
+      <div class="card-term">🚪 Port (e.g. 8189 vs 8080)</div>
+      <div class="card-def">A logical door number on your computer. IP address gets data to the machine; the Port number tells the OS which specific application should receive it.</div>
+    </div>
+    <div class="card">
+      <div class="card-term">🤝 TCP vs UDP</div>
+      <div class="card-def"><b>TCP</b> is connection-oriented and reliable (3-way handshake, in-order packets, auto-retransmits). <b>UDP</b> is fast but fire-and-forget (packets can drop or get scrambled). Chat apps <i>must</i> use TCP.</div>
+    </div>
+    <div class="card">
+      <div class="card-term">🧵 Concurrency & Multithreading</div>
+      <div class="card-def">If a server has only 1 thread, it can only talk to 1 user at a time (all others freeze). We spawn worker threads (<code>ClientHandler</code>) so hundreds of users can talk at once.</div>
+    </div>
+    <div class="card">
+      <div class="card-term">⚡ WebSockets (RFC 6455)</div>
+      <div class="card-def">Unlike normal HTTP where the browser asks and waits, WebSockets establish a <b>permanent, 2-way highway</b>. The server can push messages instantly to the browser with only 2–10 bytes of frame overhead.</div>
+    </div>
+    <div class="card">
+      <div class="card-term">📣 Pub/Sub (Publish-Subscribe)</div>
+      <div class="card-def">A messaging pattern where senders "publish" messages to a topic (like <code>/topic/101</code>) and all subscribed users receive it automatically without knowing who the sender is directly.</div>
+    </div>
+    <div class="card">
+      <div class="card-term">🎟️ JWT (JSON Web Token)</div>
+      <div class="card-def">A cryptographically signed identity badge. When a user logs in, they get a JWT token. They show this token on every WebSocket connection to prove who they are without querying passwords.</div>
+    </div>
+    <div class="card">
+      <div class="card-term">🛡️ Channel Interceptor</div>
+      <div class="card-def">A security gatekeeper inside the WebSocket pipeline. When a user tries to subscribe to a chat room, the interceptor checks the database: if you're not in the group, it drops your packet.</div>
+    </div>
+    <div class="card">
+      <div class="card-term">💓 Heartbeat & Cache TTL</div>
+      <div class="card-def">Clients send a ping every 15s. If the server doesn't get a ping within 30s (Time-To-Live), it knows the user lost power or signal and marks them <code>OFFLINE</code>.</div>
+    </div>
+    <div class="card">
+      <div class="card-term">🔁 Idempotency & Deduplication</div>
+      <div class="card-def">On mobile connections, duplicate packets happen when ACKs drop. The client assigns a UUID (<code>clientMsgId</code>); the server remembers it for 5 min and ignores duplicate copies.</div>
+    </div>
+    <div class="card">
+      <div class="card-term">📑 BroadcastChannel API</div>
+      <div class="card-def">A browser feature allowing multiple tabs to talk directly to each other without pinging the server. If Tab 1 reads a message, Tab 2 updates its blue ticks instantly.</div>
+    </div>
+    <div class="card">
+      <div class="card-term">📦 IndexedDB & Service Worker</div>
+      <div class="card-def"><b>IndexedDB</b> is an in-browser database caching chat history locally. <b>Service Worker</b> intercepts offline requests and background-syncs queued messages once Wi-Fi returns.</div>
+    </div>
+  </div>
+
+  <!-- PAGE 2 -->
+  <div class="page-break"></div>
+  <div class="header-meta">
+    <span><b>STEALTHCHAT TEAM GUIDE</b></span>
+    <span>SECTION 3: THE CORE NOVELTY</span>
+  </div>
+
+  <h2>3. The Core Novelty: Steganographic Carrier Image Encryption</h2>
+  
+  <div class="callout callout-novelty">
+    <b>⭐ THIS IS THE MOST IMPORTANT SECTION OF THE PROJECT!</b><br>
+    The entire grade depends on explaining why our project is <b>novel and innovative</b> compared to other chat apps.
+  </div>
+
+  <h3>The Critical Flaw of Apps like WhatsApp, Signal, and Telegram:</h3>
+  <ul>
+    <li>WhatsApp and Signal use state-of-the-art End-to-End Encryption (E2EE) such as AES-256-GCM.</li>
+    <li><b>However, the ciphertext itself is loudly visible on the network wire.</b> When encrypted text traverses an ISP or firewall, it has high <i>Shannon entropy</i> (it looks like random high-entropy noise).</li>
+    <li><b>Deep Packet Inspection (DPI)</b> appliances and network administrators immediately detect that an encrypted, secretive conversation is happening. In authoritarian regions, college networks, or corporate firewalls, encrypted streams are routinely blocked, flagged, or tracked.</li>
+  </ul>
+
+  <h3>Our Novel Innovation ("StealthChat" Protocol):</h3>
+  <p>Instead of sending obvious ciphertext that triggers alarms, our application invents a <b>Zero-Knowledge Steganographic Carrier Channel</b>:</p>
+
+  <ol>
+    <li><b>Procedural Canvas Generation:</b> When a user turns on "Stealth Mode", the browser generates a unique, random color gradient on an HTML5 <code>&lt;canvas&gt;</code> element. (Zero hardcoded images; every message has a unique visual fingerprint).</li>
+    <li><b>Binary Stream Conversion:</b> The secret message is converted into UTF-8 binary bits, terminated with a 16-bit null terminator (<code>0000000000000000</code>).</li>
+    <li><b>Bitwise Least Significant Bit (LSB) Encoding:</b> We iterate over the Red, Green, and Blue bytes of the pixel data (skipping Alpha to keep opacity 100%), and replace the lowest bit:
+      <div class="code-box">
+// The Core Bitwise Algorithm in index.html:
+data[i] = (data[i] & ~1) | parseInt(secretBit);
+      </div>
+    </li>
+    <li><b>Imperceptible Visual Variance (&le; 0.39%):</b> Changing only the lowest bit changes a color channel by at most <b>1 out of 255</b>. The human visual cortex cannot perceive this tiny shift, and computer heuristic filters see standard pixel noise.</li>
+    <li><b>Network Camouflage:</b> The WebSocket transmits a legitimate <code>image/png</code> Base64 data payload. To network sniffers (Wireshark), firewalls, and database logs, <b>it looks 100% like someone simply shared a random piece of digital artwork</b>!</li>
+    <li><b>Client-Side GPU Extraction:</b> The recipient receives the image and decrypts it purely inside their local canvas buffer. The server never sees the plaintext or the keys.</li>
+  </ol>
+
+  <h3>Competitive Analysis Table (Show this to your teacher!):</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Architectural Metric</th>
+        <th>WhatsApp / Signal</th>
+        <th>Telegram / Slack</th>
+        <th>StealthChat (Our Innovation)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b>Payload Visibility to DPI</b></td>
+        <td>Obvious Ciphertext stream</td>
+        <td>Cleartext / Ciphertext</td>
+        <td><b>100% Camouflaged as a Benign PNG Image</b></td>
+      </tr>
+      <tr>
+        <td><b>Deniable Communication</b></td>
+        <td>No (Cryptographic trail proves secret talk)</td>
+        <td>No</td>
+        <td><b>Yes (User can claim they shared digital art)</b></td>
+      </tr>
+      <tr>
+        <td><b>Network Signature</b></td>
+        <td>Flagged as encrypted traffic</td>
+        <td>Standard HTTPS/REST</td>
+        <td><b>Indistinguishable from normal image sharing</b></td>
+      </tr>
+      <tr>
+        <td><b>Client Overhead</b></td>
+        <td>Heavy compiled native libraries</td>
+        <td>Standard Web / App SDK</td>
+        <td><b>Zero-Plugin Native HTML5 Canvas + WebSockets</b></td>
+      </tr>
+      <tr>
+        <td><b>Delivery Receipts</b></td>
+        <td>Sent / Delivered / Read Ticks</td>
+        <td>Sent / Read</td>
+        <td><b>Sent (✓), Delivered (✓✓), Read (✓✓ Blue)</b></td>
+      </tr>
+      <tr>
+        <td><b>Offline Resilience</b></td>
+        <td>Native SQLite Database</td>
+        <td>Server-only Cloud Sync</td>
+        <td><b>Native IndexedDB + Service Worker Sync</b></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- PAGE 3 -->
+  <div class="page-break"></div>
+  <div class="header-meta">
+    <span><b>STEALTHCHAT TEAM GUIDE</b></span>
+    <span>SECTION 4: WHAT WE BUILT (CODE & ARCHITECTURE)</span>
+  </div>
+
+  <h2>4. What Did We Actually Build? (The Architecture Roadmap)</h2>
+  <p>Our project consists of two distinct engineering milestones:</p>
+
+  <h3>Phase 1: The Raw Java Socket Prototype (Computer Networks Foundation)</h3>
+  <ul>
+    <li><b><code>ChatServer.java</code>:</b> Binds a raw TCP socket on port <code>8189</code>. Runs an infinite loop accepting connections via <code>serverSocket.accept()</code>. Dispatches each client to a <code>ClientHandler</code> thread. Maintains a thread-safe <code>synchronized(clientWriters)</code> set to broadcast text to all connected users.</li>
+    <li><b><code>ChatClient.java</code>:</b> Terminal console client. Uses two threads: main thread reads keyboard input, listener thread reads incoming socket text.</li>
+    <li><b><code>ChatClientGUI.java</code>:</b> Desktop graphical client built with Java Swing. Demonstrates how the Event Dispatch Thread (EDT) updates the window while a background worker thread listens to the socket to prevent UI freezing.</li>
+  </ul>
+
+  <h3>Phase 2: The Enterprise StealthChat Web Application (Modern Real-Time Architecture)</h3>
+  <p>Built with <b>Spring Boot 3.2.3, Java 17, and HTML5/Vanilla JS</b>:</p>
+  <ul>
+    <li><b>WebSockets & STOMP Broker (<code>WebSocketConfig.java</code>):</b> Enables the <code>/ws-chat</code> endpoint with SockJS and configures the in-memory message broker on <code>/topic</code>.</li>
+    <li><b>Packet-Level Security Interceptor (<code>WebSocketSecurityChannelInterceptor.java</code>):</b> Validates JWT on <code>CONNECT</code> and verifies user membership in <code>GroupMembershipRepository</code> on <code>SUBSCRIBE</code>.</li>
+    <li><b>Idempotency & Deduplication Engine (<code>IdempotencyService.java</code>):</b> Sliding 5-minute cache that drops duplicate packets carrying the same client-generated UUID (<code>clientMsgId</code>).</li>
+    <li><b>Presence & Heartbeat Engine (<code>PresenceService.java</code>):</b> Maintains user online status with a 30-second TTL cache, supported by a <code>@Scheduled</code> background eviction sweep every 5 seconds.</li>
+    <li><b>Delivery & Read State Machine (<code>ChatController.java</code>):</b> Handles <code>/app/chat.sendMessage</code>, <code>/app/chat.ackDelivery</code>, and <code>/app/chat.ackRead</code> to power the dynamic WhatsApp-style tick indicators.</li>
+    <li><b>Offline Resilient Client (<code>index.html</code> + <code>sw.js</code>):</b> Stores room messages in <b>IndexedDB</b> (<code>StealthChatDB</code>) and uses a <b>Service Worker</b> with the Background Sync API to queue and auto-flush messages when disconnected.</li>
+  </ul>
+
+  <h2>5. The Live Demonstration Script (What to Click & What to Say)</h2>
+  
+  <div class="callout callout-tip">
+    <b>Follow this exact 4-step script during your demonstration:</b>
+  </div>
+
+  <ol>
+    <li>
+      <b>Step 1: Open Two Windows Side-by-Side (Real-Time Communication)</b><br>
+      Open <code>http://localhost:8080</code> in two side-by-side tabs. Log into Tab 1 as <code>admin</code> (password: <code>admin123</code>). In Tab 2, register as <code>alice</code>. Both join <code>GLOBAL_1</code>.<br>
+      <i>What to say:</i> "Here we have two concurrent clients communicating over persistent WebSockets using the STOMP publish-subscribe protocol."
+    </li>
+    <li>
+      <b>Step 2: Show the Delivery Ticks Progression</b><br>
+      Send a message from Admin. Show how the tick next to the message changes from single gray <code>✓</code> (Sent) to double gray <code>✓✓</code> (Delivered to Alice) to double blue <code>✓✓</code> (Read when Alice opens the chat).<br>
+      <i>What to say:</i> "This demonstrates our bidirectional ACK state machine. The recipient client automatically fires delivery and read receipts back across the broker."
+    </li>
+    <li>
+      <b>Step 3: Trigger the Core Novelty (Stealth Mode)</b><br>
+      In Admin's window, click the eye/shield icon. Type: <code>"Top Secret Payload"</code>. Press Enter.<br>
+      Admin's window sends a colorful canvas image. Alice receives the image with a button <b>"🔓 Decrypt Carrier Image"</b>. Click it: the secret text appears!<br>
+      <i>What to say:</i> "This is our core innovation. The secret text was embedded into the Least Significant Bits of the image pixels. To any network monitor or firewall, it looked like normal image sharing."
+    </li>
+    <li>
+      <b>Step 4: Show the Admin Audit Interception Log</b><br>
+      In Admin's window, click <b>"⚙️ Admin"</b>. Point to the intercepted logs: it shows <code>[BASE64 CARRIER IMAGE - 14820 bytes]</code>.<br>
+      <i>What to say:</i> "Notice that even with database access, the network observer only captures the carrier image. The secret plaintext was never exposed on the wire."
+    </li>
+  </ol>
+
+  <!-- PAGE 4 -->
+  <div class="page-break"></div>
+  <div class="header-meta">
+    <span><b>STEALTHCHAT TEAM GUIDE</b></span>
+    <span>SECTION 6: VIVA QUESTIONS & MODEL ANSWERS</span>
+  </div>
+
+  <h2>6. Teacher Viva / Exam Defense Handbook</h2>
+  <p>Here are the exact questions teachers love to ask, along with the high-scoring answers:</p>
+
+  <div class="qa-item">
+    <div class="qa-q">❓ Q1: "Why did you use TCP instead of UDP for the chat application?"</div>
+    <div class="qa-a">
+      <b>Answer:</b> "Instant messaging requires absolute reliability and sequential ordering. TCP provides a 3-way handshake, packet sequence numbers, error checksums, and automatic retransmissions. If we used UDP, packets could be lost or arrive scrambled—altering conversation meaning (e.g., dropping critical numbers or words)."
+    </div>
+  </div>
+
+  <div class="qa-item">
+    <div class="qa-q">❓ Q2: "How is WebSockets different from traditional HTTP polling?"</div>
+    <div class="qa-a">
+      <b>Answer:</b> "In HTTP polling, the client repeatedly sends requests every few seconds. Each request incurs 500B to 2KB of redundant header overhead and high server CPU load. WebSockets performs an initial HTTP 101 Upgrade handshake, then establishes a persistent, full-duplex TCP stream with a framing overhead of only <b>2 to 10 bytes</b>."
+    </div>
+  </div>
+
+  <div class="qa-item">
+    <div class="qa-q">❓ Q3: "What happens if a user's phone battery dies? How does the server know they are offline?"</div>
+    <div class="qa-a">
+      <b>Answer:</b> "An abrupt power loss or signal drop doesn't send a clean TCP FIN packet. To solve this, we implemented a <b>Heartbeat & TTL Cache</b> in <code>PresenceService.java</code>. Clients ping <code>/app/chat.heartbeat</code> every 15s. If no ping is received within <b>30 seconds (TTL)</b>, a background <code>@Scheduled</code> sweeper automatically evicts the user and broadcasts <code>OFFLINE</code> to the channel."
+    </div>
+  </div>
+
+  <div class="qa-item">
+    <div class="qa-q">❓ Q4: "What prevents duplicate messages when a mobile user clicks Send multiple times on a bad connection?"</div>
+    <div class="qa-a">
+      <b>Answer:</b> "We implemented <b>Client-Side Idempotency</b>. The browser generates a unique UUID (<code>clientMsgId</code>) before transmitting. The backend's <code>IdempotencyService.java</code> maintains a 5-minute sliding TTL cache. If a duplicate packet arrives with the same ID, the server drops the duplicate database write and merely returns the existing ACK."
+    </div>
+  </div>
+
+  <div class="qa-item">
+    <div class="qa-q">❓ Q5: "How do you stop unauthorized users from snooping on private groups?"</div>
+    <div class="qa-a">
+      <b>Answer:</b> "We built a <code>WebSocketSecurityChannelInterceptor.java</code>. When a client sends a STOMP <code>CONNECT</code> frame, we validate their signed HMAC-SHA256 JWT. When they send a <code>SUBSCRIBE</code> frame to <code>/topic/{roomId}</code>, the interceptor checks <code>GroupMembershipRepository</code>. If they are not an authorized member, the subscription packet is rejected."
+    </div>
+  </div>
+
+  <div class="qa-item">
+    <div class="qa-q">❓ Q6: "What is your project's novelty and how does the image encryption work?"</div>
+    <div class="qa-a">
+      <b>Answer:</b> "Our novelty is <b>Steganographic Carrier Encryption</b> to defeat Deep Packet Inspection (DPI). While WhatsApp and Signal send obvious ciphertext that firewalls flag, we generate a dynamic HTML5 Canvas artwork and encode secret bits into the Least Significant Bit (LSB) of the RGB channels using <code>(pixel & ~1) | bit</code>. The maximum color variance is under 0.39%—invisible to the human eye. To the network, it looks like innocent PNG image sharing."
+    </div>
+  </div>
+
+  <div class="qa-item">
+    <div class="qa-q">❓ Q7: "What happens when the client is completely offline?"</div>
+    <div class="qa-a">
+      <b>Answer:</b> "We built an <b>Offline-First Architecture</b> using <b>IndexedDB</b> (<code>StealthChatDB</code>) and a <b>Service Worker</b> (<code>sw.js</code>). Outgoing messages are queued in an IndexedDB outbox with a <code>🕒</code> pending icon. When the network reconnects, the Service Worker Background Sync triggers and automatically flushes the queue over the WebSocket."
+    </div>
+  </div>
+
+  <div class="qa-item">
+    <div class="qa-q">❓ Q8: "Why did you use IndexedDB instead of localStorage?"</div>
+    <div class="qa-a">
+      <b>Answer:</b> "<code>localStorage</code> is synchronous, blocks the browser UI thread, and is capped at 5MB with strings only. <b>IndexedDB</b> is an asynchronous, transactional, indexed NoSQL datastore that handles large binary blobs (like our steganographic canvas images) and complex queries without freezing the page."
+    </div>
+  </div>
+
+  <div class="callout callout-novelty" style="margin-top: 15pt;">
+    <b>🚀 You are 100% prepared!</b><br>
+    Keep this guide handy during the viva. When answering, speak clearly, reference the architecture terms confidently, and emphasize the <b>Steganography Novelty</b>. Good luck!
+  </div>
+
+</body>
+</html>
