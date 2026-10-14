@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: stealthchat-server
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: SPRING_PROFILES_ACTIVE
+        value: production
+    healthCheckPath: /api/chat/presence

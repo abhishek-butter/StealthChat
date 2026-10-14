@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content, viewport-fit=cover" />
+  <title>StealthChat | Zero-Metadata Steganographic Messenger</title>
+  <link rel="stylesheet" href="ChatApplication/src/main/resources/static/css/stealthchat.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+
+  <!-- Top System Navigation Bar -->
+  <header class="system-navbar">
+    <div class="brand-section">
+      <div class="brand-logo">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.12v4.7c0 4.54-3.04 8.79-7 9.94-3.96-1.15-7-5.4-7-9.94V6.3l7-3.12zm-1 5.82v6h2v-6h-2zm0 8v2h2v-2h-2z"/>
+        </svg>
+      </div>
+      <div>
+        <span class="brand-title">STEALTHCHAT</span>
+        <span class="brand-badge">VIT SCOPE</span>
+      </div>
+    </div>
+
+    <!-- Live Status Indicators -->
+    <div class="system-status-pills">
+      <div class="status-pill">
+        <span class="status-dot active" id="statusDot"></span>
+        <span id="statusLabel">Cloud Node Active (RFC 6455)</span>
+      </div>
+    </div>
+
+    <!-- Quick Navigation Actions -->
+    <div class="nav-actions">
+      <button class="btn-icon-nav" id="btnSwitchUser" title="Switch Demo Profile" onclick="document.getElementById('userSwitchModal').classList.add('active')">
+        &#128100;
+      </button>
+      <button class="btn-icon-nav" id="btnNewChannel" title="Create Secure Channel" onclick="document.getElementById('newGroupModal').classList.add('active')">
+        &#65291;
+      </button>
+    </div>
+  </header>
+
+  <!-- Main View Container -->
+  <div class="app-container">
+    <div class="main-view" id="mainView">
+      
+      <!-- Channels Sidebar -->
+      <aside class="sidebar">
+        <!-- Active User Profile Card -->
+        <div class="user-profile-card" id="userProfileCard" title="Click to Switch User Profile">
+          <div class="user-info-row">
+            <div class="user-avatar" id="userAvatar">AV</div>
+            <div>
+              <div class="user-meta-name" id="currentUserName">Abhishek V. S.</div>
+              <div class="user-meta-sub" id="currentUserSub">Project Lead &bull; Online</div>
+            </div>
+          </div>
+          <button class="btn-icon-nav" style="border:none;" title="Switch Profile">&#8644;</button>
+        </div>
+
+        <!-- Search Channels Bar -->
+        <div class="search-filter-box">
+          <div class="search-input-wrapper">
+            <svg class="search-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" placeholder="Search channels or audit logs..." id="channelSearchInput" />
+          </div>
+        </div>
+
+        <!-- Channels & Groups List -->
+        <div class="channels-container">
+          <div class="channel-item active" data-room-id="1" data-members="4">
+            <div class="channel-icon" style="background:#0f2b1d; color:#10b981;">&sect;</div>
+            <div class="channel-details">
+              <div class="channel-row-top">
+                <span class="channel-title">VIT CyberSec Research Group</span>
+                <span class="channel-time">Just now</span>
+              </div>
+              <div class="channel-preview">Prof. Thamizharasan: Welcome team to the...</div>
+            </div>
+            <span class="channel-badge">4</span>
+          </div>
+
+          <div class="channel-item" data-room-id="2" data-members="3">
+            <div class="channel-icon" style="background:#172554; color:#38bdf8;">&Sigma;</div>
+            <div class="channel-details">
+              <div class="channel-row-top">
+                <span class="channel-title">Steganography Core Labs</span>
+                <span class="channel-time">12m</span>
+              </div>
+              <div class="channel-preview">Varun Krishna: PSNR &gt; 57dB benchmark verified</div>
+            </div>
+          </div>
+
+          <div class="channel-item" data-room-id="3" data-members="3">
+            <div class="channel-icon" style="background:#2e1065; color:#c084fc;">&Psi;</div>
+            <div class="channel-details">
+              <div class="channel-row-top">
+                <span class="channel-title">Adversarial Network Audits</span>
+                <span class="channel-time">1h</span>
+              </div>
+              <div class="channel-preview">Aujas Shahi: Zero TCP RST flags triggered</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Active Conversation Area -->
+      <main class="chat-area">
+        <div class="chat-header">
+          <div class="chat-header-info">
+            <button class="btn-mobile-back" id="btnMobileBack">&#8592;</button>
+            <div class="chat-header-details">
+              <h2 id="activeRoomTitle">VIT CyberSec Research Group</h2>
+              <div class="chat-header-subtitle" id="activeRoomSubtitle">
+                4 Members &bull; LSB Stego Synchronized
+              </div>
+            </div>
+          </div>
+
+          <div class="header-action-group">
+            <button class="btn-header-action btn-header-call" id="btnVoiceCall" title="Start WebRTC Voice Call">
+              &#128222; Voice Call
+            </button>
+            <button class="btn-header-action btn-header-call" id="btnVideoCall" title="Start WebRTC Video Call">
+              &#127909; Video Call
+            </button>
+          </div>
+        </div>
+
+        <div class="messages-stream" id="messagesStream">
+          <div class="chat-date-divider">
+            <span class="chat-date-pill">Today &bull; Encrypted LSB Channel</span>
+          </div>
+        </div>
+
+        <div class="typing-indicator-bar" id="typingIndicator">
+          Someone is typing...
+        </div>
+
+        <div class="chat-input-bar">
+          <button class="btn-stego-toggle active" id="btnStegoToggle" title="Toggle Spatial Canvas LSB Carrier Embedding">
+            &#128737; Stego: ACTIVE
+          </button>
+
+          <div class="input-text-wrapper" id="inputWrapper">
+            <input
+              type="text"
+              class="chat-text-input"
+              id="messageInput"
+              placeholder="Type confidential message (carrier art synthesized on send)..."
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="recording-bar" id="recordingBar">
+            <span>&#9679; Recording Encrypted Voice Memo...</span>
+            <button class="btn-modal-close" id="btnCancelRecord" style="font-size:12px; color:var(--accent-rose);">&#10005; Cancel</button>
+          </div>
+
+          <button class="btn-input-utility" id="btnVoiceRecord" title="Record Voice Memo">
+            &#127908;
+          </button>
+
+          <button class="btn-send-message" id="btnSendMessage" title="Send Payload">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+          </button>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <!-- User Profile Switcher Modal -->
+  <div class="modal-overlay" id="userSwitchModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Switch Demonstration Profile</h3>
+        <button class="btn-modal-close">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:12.5px; color:var(--text-secondary);">
+          Select any project team member or faculty guide to test multi-client delivery receipts, WebSockets, and call signaling:
+        </p>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <button class="btn-secondary" style="text-align:left; display:flex; justify-content:space-between;" onclick="window.StealthApp.switchUser('Abhishek V. S.', 'Project Lead (VIT SCOPE)')">
+            <span><b>Abhishek V. S.</b> (Project Lead)</span>
+            <span style="color:var(--accent-cyan);">Switch &rarr;</span>
+          </button>
+          <button class="btn-secondary" style="text-align:left; display:flex; justify-content:space-between;" onclick="window.StealthApp.switchUser('Prof. Thamizharasan', 'Faculty Guide & Supervisor')">
+            <span><b>Prof. Thamizharasan</b> (Supervisor)</span>
+            <span style="color:var(--accent-cyan);">Switch &rarr;</span>
+          </button>
+          <button class="btn-secondary" style="text-align:left; display:flex; justify-content:space-between;" onclick="window.StealthApp.switchUser('Varun Krishna', 'Core Research Team')">
+            <span><b>Varun Krishna</b> (Security Engineer)</span>
+            <span style="color:var(--accent-cyan);">Switch &rarr;</span>
+          </button>
+          <button class="btn-secondary" style="text-align:left; display:flex; justify-content:space-between;" onclick="window.StealthApp.switchUser('Aujas Shahi', 'Core Research Team')">
+            <span><b>Aujas Shahi</b> (Systems Engineer)</span>
+            <span style="color:var(--accent-cyan);">Switch &rarr;</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Steganographic Carrier Audit Modal -->
+  <div class="modal-overlay" id="stegoAuditModal">
+    <div class="modal-card" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3>Steganographic Carrier Quality Audit</h3>
+        <button class="btn-modal-close">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <div class="stego-audit-grid">
+          <div class="stego-audit-preview-box">
+            <span style="font-size:11.5px; font-weight:600; color:var(--text-secondary);">Transmitted Stego Canvas</span>
+            <img id="auditCarrierImg" src="" alt="Carrier Art" />
+          </div>
+          <div class="stego-audit-preview-box">
+            <span style="font-size:11.5px; font-weight:600; color:var(--text-secondary);">Extracted UTF-8 Secret</span>
+            <div id="auditExtractedText" style="padding:10px; background:#111827; border-radius:4px; font-size:12px; color:#10b981; font-family:var(--font-mono); height:120px; overflow-y:auto; word-break:break-word;"></div>
+          </div>
+        </div>
+
+        <table class="audit-metrics-table">
+          <tr>
+            <td>Shannon Stream Entropy (<i>H</i>)</td>
+            <td id="metricEntropy">5.42 bits/byte</td>
+          </tr>
+          <tr>
+            <td>Peak Signal-to-Noise Ratio (PSNR)</td>
+            <td id="metricPsnr">57.4 dB</td>
+          </tr>
+          <tr>
+            <td>Structural Similarity Index (SSIM)</td>
+            <td id="metricSsim">0.9992</td>
+          </tr>
+          <tr>
+            <td>CIE Visual Deviation (&Delta;<i>E</i><sup>*</sup>)</td>
+            <td id="metricDeltaE">0.27 (Imperceptible)</td>
+          </tr>
+          <tr>
+            <td>Bit Error Rate (BER)</td>
+            <td id="metricBer">0.00% (Lossless)</td>
+          </tr>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary btn-modal-close">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Incoming Call Notification Banner -->
+  <div class="incoming-call-banner" id="incomingCallBanner">
+    <div class="brand-logo" style="width:36px; height:36px;">&#128222;</div>
+    <div class="call-banner-info">
+      <h4 id="incomingCallerName">Prof. Thamizharasan</h4>
+      <p id="incomingCallType">Incoming Voice Call...</p>
+    </div>
+    <div class="call-banner-actions">
+      <button class="btn-accept-call" id="btnAcceptCall">&#10003; Accept</button>
+      <button class="btn-reject-call" id="btnRejectCall">&#10005; Decline</button>
+    </div>
+  </div>
+
+  <!-- Full-Screen WebRTC Active Call Overlay -->
+  <div class="call-overlay" id="callOverlay">
+    <div class="call-overlay-header">
+      <div class="call-title-block">
+        <h3 id="callUserName">Prof. Thamizharasan</h3>
+        <span class="call-timer" id="callTimer">00:00</span> &bull; <span id="callStatusText">Connecting...</span>
+      </div>
+      <button class="btn-icon-nav btn-call-hangup" id="btnTopCloseCall" style="border:none;" onclick="window.StealthCall.endCall();">&#10005;</button>
+    </div>
+
+    <div class="call-video-grid">
+      <div class="video-container remote-main">
+        <video id="remoteVideo" autoplay playsinline></video>
+        <div class="video-avatar-fallback" id="callAvatarFallback">PT</div>
+      </div>
+      <div class="video-container local-pip">
+        <video id="localVideo" autoplay playsinline muted></video>
+      </div>
+    </div>
+
+    <div class="call-controls-bar">
+      <button class="btn-call-ctrl" id="btnMuteAudio" title="Mute Microphone" onclick="this.classList.toggle('active')">&#127908;</button>
+      <button class="btn-call-ctrl" id="btnToggleVideo" title="Toggle Camera" onclick="this.classList.toggle('active')">&#127909;</button>
+      <button class="btn-call-ctrl" id="btnScreenShare" title="Share Screen">&#128187;</button>
+      <button class="btn-call-ctrl btn-call-hangup" id="btnHangup" title="End Call">&#128222;</button>
+    </div>
+  </div>
+
+  <script src="ChatApplication/src/main/resources/static/js/stego.js"></script>
+  <script src="ChatApplication/src/main/resources/static/js/webrtc.js"></script>
+  <script src="ChatApplication/src/main/resources/static/js/app.js"></script>
+</body>
+</html>

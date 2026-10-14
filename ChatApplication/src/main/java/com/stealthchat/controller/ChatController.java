@@ -32,6 +32,9 @@ public class ChatController {
     @Autowired
     private PresenceService presenceService;
 
+    @Autowired
+    private com.stealthchat.repository.GroupRepository groupRepository;
+
     /**
      * Handles outgoing message sending with client-side idempotency and delivery state tracking.
      */
@@ -141,6 +144,34 @@ public class ChatController {
     public ResponseEntity<List<MessageEntity>> getRoomHistory(@PathVariable String roomId) {
         List<MessageEntity> history = messageRepository.findByRoomIdOrderByTimestampAsc(roomId);
         return ResponseEntity.ok(history);
+    }
+
+    /**
+     * WebRTC Call signaling relay across network endpoints.
+     */
+    @MessageMapping("/chat.call/{roomId}")
+    public void handleCallSignal(@DestinationVariable String roomId, ChatMessage signal) {
+        signal.setRoomId(roomId);
+        messagingTemplate.convertAndSend("/topic/call." + roomId, signal);
+    }
+
+    /**
+     * Ephemeral typing state broadcast.
+     */
+    @MessageMapping("/chat.typing/{roomId}")
+    public void handleTyping(@DestinationVariable String roomId, ChatMessage typing) {
+        typing.setType("TYPING");
+        typing.setRoomId(roomId);
+        messagingTemplate.convertAndSend("/topic/typing." + roomId, typing);
+    }
+
+    /**
+     * REST endpoint to list all available discussion groups.
+     */
+    @GetMapping("/api/chat/groups")
+    @ResponseBody
+    public ResponseEntity<List<com.stealthchat.model.GroupEntity>> getAllGroups() {
+        return ResponseEntity.ok(groupRepository.findAll());
     }
 
     /**

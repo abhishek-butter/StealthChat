@@ -20,6 +20,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-chat").setAllowedOriginPatterns("*").withSockJS();
+        registry.addEndpoint("/ws-chat").setAllowedOriginPatterns("*");
     }
 
     @Override
@@ -31,5 +32,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(securityChannelInterceptor);
+    }
+
+    @Override
+    public void configureWebSocketTransport(org.springframework.web.socket.config.annotation.WebSocketTransportRegistration registration) {
+        registration.setMessageSizeLimit(20 * 1024 * 1024); // 20 MB message limit for stego images/audio
+        registration.setSendBufferSizeLimit(20 * 1024 * 1024); // 20 MB buffer limit
+        registration.setSendTimeLimit(30000); // 30 seconds
     }
 }
